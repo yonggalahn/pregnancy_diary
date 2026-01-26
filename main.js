@@ -65,17 +65,27 @@ document.addEventListener('DOMContentLoaded', () => {
             image: diaryImage.src // Preserve existing image if no new one is selected
         };
 
+                const showSaveFeedback = () => {
+            const originalText = saveButton.textContent;
+            saveButton.textContent = '저장됨!';
+            saveButton.disabled = true;
+            setTimeout(() => {
+                saveButton.textContent = originalText;
+                saveButton.disabled = false;
+            }, 2000);
+        };
+
         if (file) {
             reader.onload = function(e) {
                 entry.image = e.target.result;
                 localStorage.setItem(key, JSON.stringify(entry));
-                alert('저장되었습니다!');
+                showSaveFeedback();
                 loadDiaryEntry(date); // Reload to show the new image
             };
             reader.readAsDataURL(file);
         } else {
             localStorage.setItem(key, JSON.stringify(entry));
-            alert('저장되었습니다!');
+            showSaveFeedback();
         }
       }
     });
