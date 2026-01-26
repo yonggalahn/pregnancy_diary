@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>애기일기</title>
+  <title>아가다와 미카엘의 애기일기</title>
   <link href='/style.css' rel='stylesheet'>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
@@ -24,10 +24,12 @@
       </div>
       <button id="save-button">저장</button>
     </div>
-    <div id="debug-info" style="margin-top: 20px; padding: 10px; background-color: #eee;"></div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script defer type="text/javascript" src="/main.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js"></script>
+  <script type="module" src="/firebase-config.js"></script>
+  <script type="module" src="/main.js"></script>
 </body>
 </html>

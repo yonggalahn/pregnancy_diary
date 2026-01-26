@@ -1,3 +1,6 @@
+import { db } from './firebase-config.js';
+import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
 document.addEventListener('DOMContentLoaded', () => {
   if (window.location.pathname.includes('diary')) {
     const urlParams = new URLSearchParams(window.location.search);
@@ -12,200 +15,144 @@ document.addEventListener('DOMContentLoaded', () => {
     const diaryImage = document.getElementById('diary-image');
     const imageInput = document.getElementById('image-input');
 
-    const debugInfo = document.getElementById('debug-info');
-    
-        if (person === 'mikael') {
-          diaryTitle.textContent = "미카엘의 일기";
-        } else if (person === 'agatha') {
-          diaryTitle.textContent = "아가다의 일기";
-        }
-    
-        const fp = flatpickr("#calendar-container", {
-          inline: true,
-          defaultDate: date || new Date(),
-          onChange: function(selectedDates, dateStr, instance) {
-            date = dateStr;
-            window.history.pushState({}, '', `?person=${person}&date=${date}`);
-            showDiaryEntry(date);
-          }
-        });
-    
-        function showDiaryEntry(selectedDate) {
-          diaryDate.textContent = selectedDate;
-          diaryEntry.style.display = 'block';
-          loadDiaryEntry(selectedDate);
-        }
-    
-        function loadDiaryEntry(selectedDate) {
-          const key = `${person}-${selectedDate}`;
-          debugInfo.innerHTML = `Loading from key: ${key}`;
-          const entryJSON = localStorage.getItem(key);
-          if (entryJSON) {
-            const entry = JSON.parse(entryJSON);
-            diaryText.value = entry.text || '';
-            if (entry.image) {
-              diaryImage.src = entry.image;
-              diaryImage.style.display = 'block';
-            } else {
-              diaryImage.style.display = 'none';
-            }
-          } else {
-            diaryText.value = '';
-            diaryImage.src = '';
-            diaryImage.style.display = 'none';
-          }
-          imageInput.value = ''; // Reset file input
-        }
-    
-        saveButton.addEventListener('click', () => {
-              if (date) {
-                const key = `${person}-${date}`;
-                const reader = new FileReader();
-                const file = imageInput.files[0];
-        
-                const showSaveFeedback = () => {
-                    const originalText = saveButton.textContent;
-                    saveButton.textContent = '저장됨!';
-                    saveButton.disabled = true;
-                    setTimeout(() => {
-                        saveButton.textContent = originalText;
-                        saveButton.disabled = false;
-                    }, 2000);
-                };
-        
-                if (file) {
-                            reader.onload = function(e) {
-                                const img = new Image();
-                                img.onload = function() {
-                                    const canvas = document.createElement('canvas');
-                                    const maxWidth = 800;
-                                    const maxHeight = 800;
-                                    let width = img.width;
-                                    let height = img.height;
-                
-                                    if (width > height) {
-                                        if (width > maxWidth) {
-                                            height *= maxWidth / width;
-                                            width = maxWidth;
-                                        }
-                                    } else {
-                                        if (height > maxHeight) {
-                                            width *= maxHeight / height;
-                                            height = maxHeight;
-                                        }
-                                    }
-                                    canvas.width = width;
-                                    canvas.height = height;
-                                    const ctx = canvas.getContext('2d');
-                                    ctx.drawImage(img, 0, 0, width, height);
-                                    
-                                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                
-                                    const entry = {
-                                        text: diaryText.value,
-                                        image: compressedDataUrl
-                                    };
-                                    debugInfo.innerHTML = `Saving to key: ${key}<br>Content (compressed): ${JSON.stringify(entry).substring(0, 100)}...`;
-                                    localStorage.setItem(key, JSON.stringify(entry));
-                                    showSaveFeedback();
-                                    loadDiaryEntry(date); // Reload to show the new image
-                                }
-                                img.src = e.target.result;
-                            };
-                            reader.readAsDataURL(file);                } else {
-                    // No new file, save text and preserve existing image if valid
-                    let entry = {
-                        text: diaryText.value
-                    };
-                    if (diaryImage.src && diaryImage.src.startsWith('data:image')) {
-                        entry.image = diaryImage.src;
-                    }
-                    debugInfo.innerHTML = `Saving to key: ${key}<br>Content: ${JSON.stringify(entry).substring(0, 100)}...`;
-                    localStorage.setItem(key, JSON.stringify(entry));
-                    showSaveFeedback();
-                }
-              }
-            });    
-        if (!date) {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            date = `${year}-${month}-${day}`;
-            window.history.pushState({}, '', `?person=${person}&date=${date}`);
-        }
-        } else {
-    // Logic for the main index.html page
-    const mikaelInput = document.getElementById('mikael-input');
-    const agathaInput = document.getElementById('agatha-input');
-    const mikaelPic = document.getElementById('mikael-pic');
-    const agathaPic = document.getElementById('agatha-pic');
-
-    function loadProfilePictures() {
-      const mikaelImg = localStorage.getItem('mikael-profile-image');
-      const agathaImg = localStorage.getItem('agatha-profile-image');
-      if (mikaelImg) {
-        mikaelPic.src = mikaelImg;
-      }
-      if (agathaImg) {
-        agathaPic.src = agathaImg;
-      }
+    if (person === 'mikael') {
+      diaryTitle.textContent = "미카엘의 일기";
+    } else if (person === 'agatha') {
+      diaryTitle.textContent = "아가다의 일기";
     }
 
-    function handleProfileImageChange(file, person) {
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const maxWidth = 300; // Smaller size for profile pics
-            const maxHeight = 300;
-            let width = img.width;
-            let height = img.height;
-
-            if (width > height) {
-                if (width > maxWidth) {
-                    height *= maxWidth / width;
-                    width = maxWidth;
-                }
-            } else {
-                if (height > maxHeight) {
-                    width *= maxHeight / height;
-                    height = maxHeight;
-                }
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            
-            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-            
-            localStorage.setItem(`${person}-profile-image`, compressedDataUrl);
-            
-            if (person === 'mikael') {
-                mikaelPic.src = compressedDataUrl;
-            } else if (person === 'agatha') {
-                agathaPic.src = compressedDataUrl;
-            }
-        }
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    document.querySelectorAll('.edit-btn').forEach(button => {
-      button.addEventListener('click', (e) => {
-        const person = e.target.dataset.person;
-        document.getElementById(`${person}-input`).click();
-      });
+    const fp = flatpickr("#calendar-container", {
+      inline: true,
+      defaultDate: date || new Date(),
+      onChange: function(selectedDates, dateStr, instance) {
+        date = dateStr;
+        window.history.pushState({}, '', `?person=${person}&date=${date}`);
+        showDiaryEntry(date);
+      }
     });
 
-    mikaelInput.addEventListener('change', (e) => handleProfileImageChange(e.target.files[0], 'mikael'));
-    agathaInput.addEventListener('change', (e) => handleProfileImageChange(e.target.files[0], 'agatha'));
+    function showDiaryEntry(selectedDate) {
+      diaryDate.textContent = selectedDate;
+      diaryEntry.style.display = 'block';
+      loadDiaryEntry(selectedDate);
+    }
 
-    loadProfilePictures();
+    async function loadDiaryEntry(selectedDate) {
+      const key = `${person}-${selectedDate}`;
+      const docRef = doc(db, "diaries", key);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const entry = docSnap.data();
+        diaryText.value = entry.text || '';
+        if (entry.image) {
+          diaryImage.src = entry.image;
+          diaryImage.style.display = 'block';
+        } else {
+          diaryImage.style.display = 'none';
+        }
+      } else {
+        // No document found, clear the form
+        diaryText.value = '';
+        diaryImage.src = '';
+        diaryImage.style.display = 'none';
+      }
+      imageInput.value = ''; // Reset file input
+    }
+
+    saveButton.addEventListener('click', async () => {
+      if (date) {
+        const key = `${person}-${date}`;
+        const file = imageInput.files[0];
+        const docRef = doc(db, "diaries", key);
+
+        const showSaveFeedback = () => {
+            const originalText = saveButton.textContent;
+            saveButton.textContent = '저장됨!';
+            saveButton.disabled = true;
+            setTimeout(() => {
+                saveButton.textContent = originalText;
+                saveButton.disabled = false;
+            }, 2000);
+        };
+
+        const saveEntry = async (entryData) => {
+            await setDoc(docRef, entryData);
+            showSaveFeedback();
+        };
+
+        if (file) {
+          // Compress and then save
+          const reader = new FileReader();
+          reader.onload = function(e) {
+              const img = new Image();
+              img.onload = function() {
+                  const canvas = document.createElement('canvas');
+                  const maxWidth = 800;
+                  const maxHeight = 800;
+                  let width = img.width;
+                  let height = img.height;
+
+                  if (width > height) {
+                      if (width > maxWidth) {
+                          height *= maxWidth / width;
+                          width = maxWidth;
+                      }
+                  } else {
+                      if (height > maxHeight) {
+                          width *= maxHeight / height;
+                          height = maxHeight;
+                      }
+                  }
+                  canvas.width = width;
+                  canvas.height = height;
+                  const ctx = canvas.getContext('2d');
+                  ctx.drawImage(img, 0, 0, width, height);
+                  
+                  const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                  const entry = {
+                      person: person,
+                      date: date,
+                      text: diaryText.value,
+                      image: compressedDataUrl
+                  };
+                  saveEntry(entry);
+              }
+              img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        } else {
+          // Save text and any existing image
+          const docSnap = await getDoc(docRef);
+          let existingImage = '';
+          if (docSnap.exists() && docSnap.data().image) {
+            existingImage = docSnap.data().image;
+          }
+          
+          const entry = {
+              person: person,
+              date: date,
+              text: diaryText.value,
+              image: existingImage
+          };
+          
+          if (!entry.image && diaryImage.src.startsWith('data:image')) {
+            entry.image = diaryImage.src;
+          }
+
+          saveEntry(entry);
+        }
+      }
+    });
+
+    if (!date) {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        date = `${year}-${month}-${day}`;
+        window.history.pushState({}, '', `?person=${person}&date=${date}`);
+    }
+    showDiaryEntry(date);
   }
 });

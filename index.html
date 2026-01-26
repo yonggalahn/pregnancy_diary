@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
+  <title>아가다와 미카엘의 애기일기</title>
   <link href='/style.css' rel='stylesheet'>
 </head>
 <body>
@@ -13,22 +13,22 @@
     <section class="profiles">
       <div class="profile">
         <a href="diary.html?person=mikael">
-          <img id="mikael-pic" src="https://via.placeholder.com/150" alt="미카엘 사진">
+          <img id="mikael-pic" src="image/michael.jpg" alt="미카엘 사진">
           <p>미카엘</p>
         </a>
-        <button class="edit-btn" data-person="mikael">수정</button>
-        <input type="file" id="mikael-input" accept="image/*" style="display: none;">
       </div>
       <div class="profile">
         <a href="diary.html?person=agatha">
-          <img id="agatha-pic" src="https://via.placeholder.com/150" alt="아가다 사진">
+          <img id="agatha-pic" src="image/agatha.jpg" alt="아가다 사진">
           <p>아가다</p>
         </a>
-        <button class="edit-btn" data-person="agatha">수정</button>
-        <input type="file" id="agatha-input" accept="image/*" style="display: none;">
       </div>
     </section>
   </main>
-  <script defer type="text/javascript" src="/main.js"></script>
+  
+  <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js"></script>
+  <script type="module" src="/firebase-config.js"></script>
+  <script type="module" src="/main.js"></script>
 </body>
 </html>
