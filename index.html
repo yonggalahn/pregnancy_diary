@@ -13,15 +13,19 @@
     <section class="profiles">
       <div class="profile">
         <a href="diary.html?person=mikael">
-          <img src="https://via.placeholder.com/150" alt="미카엘 사진">
+          <img id="mikael-pic" src="https://via.placeholder.com/150" alt="미카엘 사진">
           <p>미카엘</p>
         </a>
+        <button class="edit-btn" data-person="mikael">수정</button>
+        <input type="file" id="mikael-input" accept="image/*" style="display: none;">
       </div>
       <div class="profile">
         <a href="diary.html?person=agatha">
-          <img src="https://via.placeholder.com/150" alt="아가다 사진">
+          <img id="agatha-pic" src="https://via.placeholder.com/150" alt="아가다 사진">
           <p>아가다</p>
         </a>
+        <button class="edit-btn" data-person="agatha">수정</button>
+        <input type="file" id="agatha-input" accept="image/*" style="display: none;">
       </div>
     </section>
   </main>

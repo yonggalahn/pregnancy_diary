@@ -134,5 +134,78 @@ document.addEventListener('DOMContentLoaded', () => {
             date = `${year}-${month}-${day}`;
             window.history.pushState({}, '', `?person=${person}&date=${date}`);
         }
-        showDiaryEntry(date);  }
+        } else {
+    // Logic for the main index.html page
+    const mikaelInput = document.getElementById('mikael-input');
+    const agathaInput = document.getElementById('agatha-input');
+    const mikaelPic = document.getElementById('mikael-pic');
+    const agathaPic = document.getElementById('agatha-pic');
+
+    function loadProfilePictures() {
+      const mikaelImg = localStorage.getItem('mikael-profile-image');
+      const agathaImg = localStorage.getItem('agatha-profile-image');
+      if (mikaelImg) {
+        mikaelPic.src = mikaelImg;
+      }
+      if (agathaImg) {
+        agathaPic.src = agathaImg;
+      }
+    }
+
+    function handleProfileImageChange(file, person) {
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const maxWidth = 300; // Smaller size for profile pics
+            const maxHeight = 300;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+                if (width > maxWidth) {
+                    height *= maxWidth / width;
+                    width = maxWidth;
+                }
+            } else {
+                if (height > maxHeight) {
+                    width *= maxHeight / height;
+                    height = maxHeight;
+                }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            
+            localStorage.setItem(`${person}-profile-image`, compressedDataUrl);
+            
+            if (person === 'mikael') {
+                mikaelPic.src = compressedDataUrl;
+            } else if (person === 'agatha') {
+                agathaPic.src = compressedDataUrl;
+            }
+        }
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    document.querySelectorAll('.edit-btn').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const person = e.target.dataset.person;
+        document.getElementById(`${person}-input`).click();
+      });
+    });
+
+    mikaelInput.addEventListener('change', (e) => handleProfileImageChange(e.target.files[0], 'mikael'));
+    agathaInput.addEventListener('change', (e) => handleProfileImageChange(e.target.files[0], 'agatha'));
+
+    loadProfilePictures();
+  }
 });
