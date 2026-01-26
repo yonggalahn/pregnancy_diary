@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  if (window.location.pathname.endsWith('diary.html')) {
+  if (window.location.pathname.includes('diary')) {
     const urlParams = new URLSearchParams(window.location.search);
     const person = urlParams.get('person');
     let date = urlParams.get('date');
