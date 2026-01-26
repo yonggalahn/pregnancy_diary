@@ -74,18 +74,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
         
                 if (file) {
-                    reader.onload = function(e) {
-                        const entry = {
-                            text: diaryText.value,
-                            image: e.target.result
-                        };
-                        debugInfo.innerHTML = `Saving to key: ${key}<br>Content: ${JSON.stringify(entry).substring(0, 100)}...`;
-                        localStorage.setItem(key, JSON.stringify(entry));
-                        showSaveFeedback();
-                        loadDiaryEntry(date); // Reload to show the new image
-                    };
-                    reader.readAsDataURL(file);
-                } else {
+                            reader.onload = function(e) {
+                                const img = new Image();
+                                img.onload = function() {
+                                    const canvas = document.createElement('canvas');
+                                    const maxWidth = 800;
+                                    const maxHeight = 800;
+                                    let width = img.width;
+                                    let height = img.height;
+                
+                                    if (width > height) {
+                                        if (width > maxWidth) {
+                                            height *= maxWidth / width;
+                                            width = maxWidth;
+                                        }
+                                    } else {
+                                        if (height > maxHeight) {
+                                            width *= maxHeight / height;
+                                            height = maxHeight;
+                                        }
+                                    }
+                                    canvas.width = width;
+                                    canvas.height = height;
+                                    const ctx = canvas.getContext('2d');
+                                    ctx.drawImage(img, 0, 0, width, height);
+                                    
+                                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                
+                                    const entry = {
+                                        text: diaryText.value,
+                                        image: compressedDataUrl
+                                    };
+                                    debugInfo.innerHTML = `Saving to key: ${key}<br>Content (compressed): ${JSON.stringify(entry).substring(0, 100)}...`;
+                                    localStorage.setItem(key, JSON.stringify(entry));
+                                    showSaveFeedback();
+                                    loadDiaryEntry(date); // Reload to show the new image
+                                }
+                                img.src = e.target.result;
+                            };
+                            reader.readAsDataURL(file);                } else {
                     // No new file, save text and preserve existing image if valid
                     let entry = {
                         text: diaryText.value
