@@ -1,5 +1,20 @@
-import { db } from './firebase-config.js';
-import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBxnHZ727WMbnnCmhlarExFYo19jdHWf4c",
+  authDomain: "pregnancy-diary-28619.firebaseapp.com",
+  projectId: "pregnancy-diary-28619",
+  storageBucket: "pregnancy-diary-28619.appspot.com",
+  messagingSenderId: "421865091093",
+  appId: "1:421865091093:web:25ba0ce02ef0fc2f82de1c",
+  measurementId: "G-65B2WNKFXX"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 document.addEventListener('DOMContentLoaded', () => {
   if (window.location.pathname.includes('diary')) {
