@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>일기 검색 - 따수니의 성장 일기</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+    <link href='./style.css' rel='stylesheet'>
+</head>
+<body style="display: none;">
+    <div class="container">
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1 style="margin: 0;">일기 검색</h1>
+            <a href="index.html" class="header-button">홈으로</a>
+        </header>
+
+        <section id="search-section">
+            <div style="display: flex; gap: 10px; margin-bottom: 30px;">
+                <input type="text" id="search-input" placeholder="검색어를 입력하세요..." style="flex-grow: 1; padding: 10px; border-radius: 20px; border: 1px solid #ccc; font-family: 'Gaegu', sans-serif; font-size: 1.2em;">
+                <button id="search-button" class="nav-button">검색</button>
+            </div>
+        </section>
+
+        <section id="search-results-section">
+            <h2 style="font-size: 2em; color: #8d6e63; margin-bottom: 20px;">검색 결과</h2>
+            <div id="search-results">
+                <p>검색어를 입력하고 검색 버튼을 눌러주세요.</p>
+            </div>
+        </section>
+    </div>
+
+    <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js"></script>
+    <script type="module" src="./auth.js"></script>
+    <script type="module" src="./search.js"></script>
+
+    <script type="module">
+        import { monitorAuthState } from './auth.js';
+        monitorAuthState(
+            user => { document.body.style.display = 'block'; },
+            () => { window.location.href = 'login.html'; }
+        );
+    </script>
+</body>
+</html>

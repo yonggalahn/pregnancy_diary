@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>아가다와 미카엘의 애기일기</title>
+  <title>일기 쓰기 - 따수니의 성장 일기</title>
   <link href='./style.css' rel='stylesheet'>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
-<body>
+<body style="display: none;">
   <header>
     <h1 id="diary-title"></h1>
     <a href="index.html">홈으로</a>
@@ -28,8 +28,23 @@
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js"></script>
   <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js"></script>
 
   <script type="module" src="./main.js"></script>
+  <script type="module">
+    import { monitorAuthState } from './auth.js';
+
+    monitorAuthState(
+      (user) => {
+        // User is logged in, show the page content.
+        document.body.style.display = 'block';
+      },
+      () => {
+        // User is not logged in, redirect to login page.
+        window.location.href = 'login.html';
+      }
+    );
+  </script>
 </body>
 </html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>따수니에게 - 따수니의 성장 일기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+  <link href='./style.css' rel='stylesheet'>
+</head>
+<body style="display: none;">
+  <div class="container">
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 style="margin: 0;">따수니에게 보내는 편지</h1>
+        <a href="index.html" class="header-button">홈으로</a>
+    </header>
+
+    <section class="letter-form-section">
+      <h2>새 편지 작성하기</h2>
+      <textarea id="letter-content" placeholder="따수니에게 보내는 사랑의 메시지를 작성해주세요..." rows="10"></textarea>
+      <button id="save-letter-button">편지 저장</button>
+      <p id="save-feedback" style="color: #4CAF50; margin-top: 10px;"></p>
+    </section>
+
+    <section class="letters-list-section">
+      <h2>따수니에게 도착한 편지들</h2>
+      <div id="letters-list">
+        <p>아직 따수니에게 도착한 편지가 없습니다.</p>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js"></script>
+  <script type="module" src="./auth.js"></script>
+  <script type="module" src="./ttasuni.js"></script>
+
+  <script type="module">
+    import { monitorAuthState } from './auth.js';
+
+    monitorAuthState(
+      (user) => {
+        // User is logged in, show the page content.
+        document.body.style.display = 'block';
+      },
+      () => {
+        // User is not logged in, redirect to login page.
+        window.location.href = 'login.html';
+      }
+    );
+  </script>
+</body>
+</html>

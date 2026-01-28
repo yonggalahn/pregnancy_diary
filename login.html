@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - 따수니의 성장 일기</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+    <link href="./style.css" rel="stylesheet">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin-top: 50px;
+            text-align: left;
+        }
+        .login-container h2 {
+            text-align: center;
+            font-size: 2.5em;
+            color: #8d6e63;
+        }
+        .login-form input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            font-family: 'Gaegu', sans-serif;
+            font-size: 1.2em;
+            box-sizing: border-box;
+        }
+        .login-form button {
+            width: 100%;
+            padding: 15px;
+            background-color: #a1887f;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.3em;
+            font-weight: 700;
+            transition: background-color 0.3s;
+        }
+        .login-form button:hover {
+            background-color: #8d6e63;
+        }
+        #error-message {
+            color: #c62828;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.1em;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container login-container">
+        <h2>로그인</h2>
+        <div class="login-form">
+            <input type="email" id="email" placeholder="이메일" required>
+            <input type="password" id="password" placeholder="비밀번호" required>
+            <button id="login-button">로그인</button>
+            <p id="error-message"></p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { login } from './auth.js';
+
+        const loginButton = document.getElementById('login-button');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const errorMessage = document.getElementById('error-message');
+
+        loginButton.addEventListener('click', async () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            errorMessage.textContent = ''; // Clear previous errors
+
+            if (!email || !password) {
+                errorMessage.textContent = '이메일과 비밀번호를 모두 입력해주세요.';
+                return;
+            }
+
+            try {
+                await login(email, password);
+                window.location.href = 'index.html'; // Redirect on successful login
+            } catch (error) {
+                console.error('Login failed:', error);
+                errorMessage.textContent = '이메일 또는 비밀번호가 잘못되었습니다.';
+            }
+        });
+    </script>
+</body>
+</html>
