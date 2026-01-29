@@ -395,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutButtonHeader = document.getElementById('logout-button-header');
 
     monitorAuthState(
-      (user) => {
+      async (user) => { // Mark this callback as async
         // User is logged in
         if (profileButtonHeader) profileButtonHeader.style.display = 'block';
         if (logoutButtonHeader) logoutButtonHeader.style.display = 'block';
@@ -430,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setDiaryPageEditability(true); // Enable editing for logged-in users
         }
       },
-      () => {
+      async () => { // Mark this callback as async
         // User is not logged in
         if (profileButtonHeader) profileButtonHeader.style.display = 'none';
         if (logoutButtonHeader) logoutButtonHeader.style.display = 'none';
