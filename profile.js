@@ -1,142 +1,164 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-storage.js";
-import { auth } from './auth.js';
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBxnHZ727WMbnnCmhlarExFYo19jdHWf4c",
-  authDomain: "pregnancy-diary-28619.firebaseapp.com",
-  projectId: "pregnancy-diary-28619",
-  storageBucket: "pregnancy-diary-28619.appspot.com",
-  messagingSenderId: "421865091093",
-  appId: "1:421865091093:web:25ba0ce02ef0fc2f82de1c",
-  measurementId: "G-65B2WNKFXX"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const storage = getStorage(app);
+import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-storage.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+import { auth, db, storage } from './firebase.js';
 
 const profilePicInput = document.getElementById('profile-pic-input');
 const uploadButton = document.getElementById('upload-profile-pic-button');
 const statusEl = document.getElementById('upload-status');
 const currentProfilePic = document.getElementById('current-profile-pic');
-
 const dueDateInput = document.getElementById('due-date-input');
 const saveDueDateButton = document.getElementById('save-due-date-button');
-const dueDateStatusEl = document.getElementById('due-date-status');
 
-// Load current profile picture and due date
-async function loadUserProfile(user) {
-    if (!user) return;
-    const person = user.email.includes('mikael') ? 'mikael' : 'agatha';
+// --- UTILITY FUNCTIONS ---
+
+const showFeedback = (element, message, color = 'green', duration = 3000) => {
+    const originalText = element.textContent;
+    const originalColor = element.style.color;
+    element.textContent = message;
+    element.style.color = color;
+    setTimeout(() => {
+        element.textContent = '';
+        element.style.color = originalColor;
+    }, duration);
+};
+
+const showSaveFeedback = (button, message = '저장됨!') => {
+    const originalText = button.textContent;
+    button.textContent = message;
+    button.disabled = true;
+    setTimeout(() => {
+        button.textContent = originalText;
+        button.disabled = false;
+    }, 2000);
+};
+
+// --- CORE FUNCTIONS ---
+
+async function loadUserProfile(person) {
+    if (!person) return;
     const docRef = doc(db, "profiles", person);
     try {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             const data = docSnap.data();
-            // Load profile picture
-            if (data.profilePicUrl) {
-                currentProfilePic.src = data.profilePicUrl;
-            } else {
-                currentProfilePic.src = `image/${person}.jpg`;
-            }
-            // Load due date
+            currentProfilePic.src = data.profilePicUrl || `image/${person}.jpg`;
             if (data.dueDate) {
                 dueDateInput.value = data.dueDate;
             }
         } else {
-            currentProfilePic.src = `image/${person}.jpg`;
+            currentProfilePic.src = `image/${person}.jpg`; // Default if no profile
         }
     } catch(error) {
         console.error("Error loading user profile:", error);
+        statusEl.textContent = "프로필 로딩 중 오류 발생";
     }
 }
 
-// Upload new profile picture
-async function uploadProfilePicture(user) {
-    if (!user) return;
-    const file = profilePicInput.files[0];
+async function uploadProfilePicture(person, file) {
     if (!file) {
-        statusEl.textContent = '먼저 파일을 선택해주세요.';
+        showFeedback(statusEl, '먼저 파일을 선택해주세요.', 'orange');
         return;
     }
 
-    const person = user.email.includes('mikael') ? 'mikael' : 'agatha';
-    statusEl.textContent = '업로드 중...';
+    showFeedback(statusEl, '업로드 중...', 'black', 10000); // Persistent message while uploading
+
+    // Image compression and resizing
+    const resizedImageBlob = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_SIZE = 500;
+                let { width, height } = img;
+                if (width > height && width > MAX_SIZE) {
+                    height *= MAX_SIZE / width; width = MAX_SIZE;
+                } else if (height > MAX_SIZE) {
+                    width *= MAX_SIZE / height; height = MAX_SIZE;
+                }
+                canvas.width = width; canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob(resolve, 'image/jpeg', 0.9);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
     const storageRef = ref(storage, `profile_pictures/${person}/${file.name}`);
 
     try {
-        const snapshot = await uploadBytes(storageRef, file);
+        const snapshot = await uploadBytes(storageRef, resizedImageBlob);
         const downloadURL = await getDownloadURL(snapshot.ref);
 
-        const docRef = doc(db, "profiles", person);
-        await setDoc(docRef, { profilePicUrl: downloadURL }, { merge: true });
-
-        statusEl.textContent = '프로필 사진이 성공적으로 변경되었습니다!';
-        statusEl.style.color = 'green';
+        await setDoc(doc(db, "profiles", person), { profilePicUrl: downloadURL }, { merge: true });
+        
+        showFeedback(statusEl, '프로필 사진이 성공적으로 변경되었습니다!');
         currentProfilePic.src = downloadURL;
-
+        profilePicInput.value = ''; // Clear the input
     } catch (error) {
         console.error("Upload failed:", error);
-        statusEl.textContent = '업로드에 실패했습니다.';
-        statusEl.style.color = 'red';
+        showFeedback(statusEl, '업로드에 실패했습니다.', 'red');
     }
 }
 
-// Save due date
-async function saveDueDate(user) {
-    if (!user) return;
+async function saveDueDate(person) {
     const dueDate = dueDateInput.value;
     if (!dueDate) {
-        dueDateStatusEl.textContent = '예정일을 선택해주세요.';
-        dueDateStatusEl.style.color = 'red';
+        showFeedback(saveDueDateButton, '예정일을 선택해주세요', 'orange');
         return;
     }
 
-    const person = user.email.includes('mikael') ? 'mikael' : 'agatha';
-    const docRef = doc(db, "profiles", person);
-
     try {
-        await setDoc(docRef, { dueDate: dueDate }, { merge: true });
-        dueDateStatusEl.textContent = '예정일이 성공적으로 저장되었습니다!';
-        dueDateStatusEl.style.color = 'green';
+        await setDoc(doc(db, "profiles", person), { dueDate }, { merge: true });
+        showSaveFeedback(saveDueDateButton);
     } catch (error) {
         console.error("Error saving due date:", error);
-        dueDateStatusEl.textContent = '예정일 저장에 실패했습니다.';
-        dueDateStatusEl.style.color = 'red';
+        showFeedback(saveDueDateButton, '저장 실패', 'red');
     }
 }
 
-// Event Listeners
-document.addEventListener('DOMContentLoaded', () => {
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            if (window.location.pathname.includes('profile.html')) {
-                loadUserProfile(user);
-                uploadButton.addEventListener('click', () => uploadProfilePicture(user));
-                saveDueDateButton.addEventListener('click', () => saveDueDate(user));
+// --- INITIALIZATION ---
 
-                uploadButton.disabled = false;
-                profilePicInput.disabled = false;
-                saveDueDateButton.disabled = false;
-                dueDateInput.disabled = false;
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    // Determine the person from URL, default based on a typical user email if not present.
+    // This part is a fallback and might need adjustment based on your user structure.
+    const personFromUrl = urlParams.get('person');
+
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            // Use person from URL if available, otherwise determine from email.
+            const person = personFromUrl || (user.email.includes('mikael') ? 'mikael' : 'agatha');
+            
+            // Redirect if person cannot be determined
+            if (!person) {
+                window.location.href = 'index.html';
+                return;
             }
+            
+            // Ensure the URL is correct if it was inferred
+            if (!personFromUrl) {
+                const newUrl = `profile.html?person=${person}`;
+                window.history.replaceState({path: newUrl}, '', newUrl);
+            }
+            
+            loadUserProfile(person);
+
+            uploadButton.addEventListener('click', () => {
+                const file = profilePicInput.files[0];
+                uploadProfilePicture(person, file);
+            });
+            saveDueDateButton.addEventListener('click', () => saveDueDate(person));
+
+            // Enable controls
+            [profilePicInput, uploadButton, dueDateInput, saveDueDateButton].forEach(el => el.disabled = false);
+            
         } else {
-            if (window.location.pathname.includes('profile.html')) {
-                // User is not logged in, disable all functionality
-                uploadButton.disabled = true;
-                profilePicInput.disabled = true;
-                saveDueDateButton.disabled = true;
-                dueDateInput.disabled = true;
-                
-                statusEl.textContent = '로그인하여 프로필을 변경해주세요.';
-                statusEl.style.color = 'red';
-                dueDateStatusEl.textContent = '로그인하여 예정일을 설정해주세요.';
-                dueDateStatusEl.style.color = 'red';
-            }
+            // User not logged in, redirect to login page
+            window.location.href = 'login.html';
         }
     });
 });

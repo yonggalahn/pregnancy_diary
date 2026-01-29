@@ -1,51 +1,49 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBxnHZ727WMbnnCmhlarExFYo19jdHWf4c",
-  authDomain: "pregnancy-diary-28619.firebaseapp.com",
-  projectId: "pregnancy-diary-28619",
-  storageBucket: "pregnancy-diary-28619.appspot.com",
-  messagingSenderId: "421865091093",
-  appId: "1:421865091093:web:25ba0ce02ef0fc2f82de1c",
-  measurementId: "G-65B2WNKFXX"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+import { collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+import { db } from './firebase.js';
 
 const searchInput = document.getElementById('search-input');
 const searchButton = document.getElementById('search-button');
 const searchResultsContainer = document.getElementById('search-results');
+const searchInfo = document.getElementById('search-info');
 
-let allDiaries = []; // Cache for all diary entries
+let allDiariesCache = []; // Caching results to improve client-side filtering
 
-// Function to fetch all diary entries and cache them
-async function fetchAllDiaries() {
-    searchResultsContainer.innerHTML = '<div class="loading-spinner"></div>';
+async function fetchAndCacheDiaries() {
+    if (allDiariesCache.length > 0) return true;
+    searchInfo.innerHTML = '<div class="loading-spinner"></div>';
     try {
-        const querySnapshot = await getDocs(collection(db, "diaries"));
-        allDiaries = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        searchResultsContainer.innerHTML = '<p>검색어를 입력하고 검색 버튼을 눌러주세요.</p>';
+        const q = query(collection(db, "diaries"), orderBy("date", "desc"));
+        const querySnapshot = await getDocs(q);
+        allDiariesCache = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        searchInfo.textContent = '일기 로딩 완료! 검색어를 입력해주세요.';
+        return true;
     } catch (error) {
         console.error("Error fetching all diaries:", error);
-        searchResultsContainer.innerHTML = '<p style="color:red;">일기 전체를 불러오는 데 실패했습니다.</p>';
+        searchInfo.innerHTML = '<p class="error-message">전체 일기를 불러오는 데 실패했습니다.</p>';
+        return false;
     }
 }
 
-// Function to perform search and display results
+function highlight(text, term) {
+    if (!text || !term) return text;
+    const regex = new RegExp(`(${term})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
+}
+
 function performSearch() {
     const searchTerm = searchInput.value.trim().toLowerCase();
     if (!searchTerm) {
         searchResultsContainer.innerHTML = '<p>검색어를 입력해주세요.</p>';
+        searchInfo.textContent = '';
         return;
     }
 
-    const results = allDiaries.filter(diary => 
-        diary.text && diary.text.toLowerCase().includes(searchTerm)
+    const results = allDiariesCache.filter(diary => 
+        (diary.text && diary.text.toLowerCase().includes(searchTerm)) ||
+        (diary.date && diary.date.includes(searchTerm))
     );
+
+    searchInfo.textContent = `총 ${results.length}개의 검색 결과가 있습니다.`;
 
     if (results.length === 0) {
         searchResultsContainer.innerHTML = `<p>"${searchInput.value}"에 대한 검색 결과가 없습니다.</p>`;
@@ -55,25 +53,26 @@ function performSearch() {
     searchResultsContainer.innerHTML = '';
     results.forEach(result => {
         const resultCard = document.createElement('div');
-        resultCard.className = 'latest-diary-card'; // Reuse existing style
+        resultCard.className = 'latest-diary-card search-result-card';
         
-        const snippet = result.text.substring(0, 150) + (result.text.length > 150 ? '...' : '');
-        const person = result.person || result.id.split('-')[0];
-        const date = result.date || result.id.substring(result.id.indexOf('-') + 1);
+        const personName = result.person === 'mikael' ? '미카엘' : '아가다';
+        const title = `📝 ${result.date} (작성자: ${personName})`;
+        const snippet = result.text.substring(0, 250) + (result.text.length > 250 ? '...' : '');
+        const highlightedSnippet = highlight(snippet, searchTerm);
 
         resultCard.innerHTML = `
-            <h3>${date} (${person})</h3>
-            <p>${snippet}</p>
-            <a href="diary.html?person=${person}&date=${date}">일기 전문 보기</a>
+            <h3>${title}</h3>
+            <p class="diary-text">${highlightedSnippet.replace(/\n/g, '<br>')}</p>
+            <a href="diary.html?person=${result.person}&date=${result.date}" class="view-button">일기 전문 보기</a>
         `;
         searchResultsContainer.appendChild(resultCard);
     });
 }
 
-// Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
     if (window.location.pathname.includes('search.html')) {
-        fetchAllDiaries(); // Fetch all diaries on page load
+        fetchAndCacheDiaries();
+
         searchButton.addEventListener('click', performSearch);
         searchInput.addEventListener('keyup', (event) => {
             if (event.key === 'Enter') {
