@@ -76,7 +76,7 @@ function renderEntries(entries) {
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
-    const isArchivePage = /(archive\.html|\/archive\/)$/i.test(window.location.pathname);
+    const isArchivePage = /(archive\.html|\/archive\/?)$/i.test(window.location.pathname);
     console.log("DOMContentLoaded fired on archive page check:", isArchivePage, "Path:", window.location.pathname);
     if (isArchivePage) {
         fetchAllDiaries().then(renderEntries).catch(error => {
