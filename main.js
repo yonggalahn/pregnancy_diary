@@ -150,9 +150,8 @@ async function displayLatestEntries() {
 
     const q = query(
       collection(db, "diaries"),
-      orderBy(documentId(), "desc"),
-      startAt(`${person}-9999-12-31`),
-      endAt(`${person}-0000-01-01`),
+      where('person', '==', person), // Filter by person field
+      orderBy("date", "desc"),      // Order by date field
       limit(1)
     );
 
