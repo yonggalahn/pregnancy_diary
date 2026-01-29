@@ -17,6 +17,12 @@
     <div id="calendar-container"></div>
     <div id="diary-entry" style="display: none;">
       <h2 id="diary-date"></h2>
+      <div class="entry-type-selector" style="margin-bottom: 15px; text-align: center;">
+        <input type="radio" id="type-diary" name="entry-type" value="diary" checked>
+        <label for="type-diary">일기</label>
+        <input type="radio" id="type-letter" name="entry-type" value="letter">
+        <label for="type-letter">편지</label>
+      </div>
       <div class="diary-content">
         <img id="diary-image" src="" alt="Diary Image" style="display: none; max-width: 100%; border-radius: 5px; margin-bottom: 15px;">
         <input type="file" id="image-input" accept="image/*">
