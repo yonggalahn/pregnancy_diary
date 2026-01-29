@@ -76,8 +76,9 @@ function renderEntries(entries) {
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOMContentLoaded fired on archive.html check:", window.location.pathname.includes('archive.html'));
-    if (window.location.pathname.includes('archive.html')) {
+    const isArchivePage = /(archive\.html|\/archive\/)$/i.test(window.location.pathname);
+    console.log("DOMContentLoaded fired on archive page check:", isArchivePage, "Path:", window.location.pathname);
+    if (isArchivePage) {
         fetchAllDiaries().then(renderEntries).catch(error => {
             console.error("Error during archive initialization:", error);
             contentContainer.innerHTML = '<p style="color:red;">모아보기 페이지 초기화 중 오류가 발생했습니다.</p>';
