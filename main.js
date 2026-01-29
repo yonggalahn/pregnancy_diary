@@ -1,9 +1,21 @@
 import { doc, getDoc, setDoc, collection, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 import { monitorAuthState, logout } from './auth.js';
 import { db } from './firebase.js';
-import data from './pregnancy_data.json' assert { type: 'json' };
 
 // --- UTILITY FUNCTIONS ---
+
+async function getPregnancyData() {
+    try {
+        const response = await fetch('./pregnancy_data.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Could not load pregnancy data:", error);
+        return null; // Handle this case in your functions
+    }
+}
 
 function getTodayDateString() {
     const today = new Date();
@@ -58,7 +70,7 @@ function calculatePregnancyWeek(dueDateStr) {
   return { week, day };
 }
 
-async function displayWeeklyInfo(user) {
+async function displayWeeklyInfo(user, data) {
     const weeklyInfoContent = document.getElementById('weekly-info-content');
     if (!weeklyInfoContent) return;
     weeklyInfoContent.innerHTML = '<div class="loading-spinner"></div>';
@@ -347,10 +359,12 @@ async function saveDiaryEntry(person, date) {
 
 
 // --- APP INITIALIZATION ---
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const pagePath = window.location.pathname;
     const isMainPage = pagePath.includes('index.html') || pagePath === '/' ||  pagePath === '/pregnancy-diary/';
     const isDiaryPage = pagePath.includes('diary.html');
+
+    const pregnancyData = await getPregnancyData();
 
     monitorAuthState(
       async (user) => {
@@ -358,11 +372,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('logout-button-header').style.display = 'block';
         document.getElementById('login-button-header').style.display = 'none';
 
-        if (isMainPage) {
+        if (isMainPage && pregnancyData) {
             await Promise.all([
                 loadProfilePictures(),
                 getDueDate(user).then(d => document.getElementById('dday-counter').textContent = calculateDDay(d)),
-                displayWeeklyInfo(user),
+                displayWeeklyInfo(user, pregnancyData),
                 renderMainCalendar(),
                 displayLatestEntries(),
                 loadTodaysMood(user)
@@ -381,11 +395,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('logout-button-header').style.display = 'none';
         document.getElementById('login-button-header').style.display = 'block';
 
-        if (isMainPage) {
+        if (isMainPage && pregnancyData) {
             await Promise.all([
                 loadProfilePictures(),
                 getDueDate(null).then(d => document.getElementById('dday-counter').textContent = calculateDDay(d)),
-                displayWeeklyInfo(null),
+                displayWeeklyInfo(null, pregnancyData),
                 renderMainCalendar(),
                 displayLatestEntries()
             ]);
