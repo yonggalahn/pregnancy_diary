@@ -22,6 +22,16 @@
             <button id="upload-profile-pic-button" class="nav-button" style="margin-top: 20px;">업로드</button>
             <p id="upload-status" style="margin-top: 15px; font-weight: bold;"></p>
         </section>
+
+        <section class="due-date-section" style="margin-top: 40px; text-align: center;">
+            <h2 style="font-size: 1.8em; color: #8d6e63; margin-bottom: 20px;">예정일 설정</h2>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <label for="due-date-input" style="font-size: 1.1em; color: #a1887f;">따수니 예정일:</label>
+                <input type="date" id="due-date-input" style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1em;">
+                <button id="save-due-date-button" class="nav-button" style="margin-top: 10px;">예정일 저장</button>
+                <p id="due-date-status" style="margin-top: 15px; font-weight: bold;"></p>
+            </div>
+        </section>
     </div>
 
     <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js"></script>

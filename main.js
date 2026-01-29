@@ -27,6 +27,37 @@ function getTodayDateString() {
     return `${year}-${month}-${day}`;
 }
 
+async function getDueDate(user) {
+    let dueDate = "2026-10-03"; // Default due date
+    if (user) {
+        const person = user.email.includes('mikael') ? 'mikael' : 'agatha';
+        const docRef = doc(db, "profiles", person);
+        try {
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists() && docSnap.data().dueDate) {
+                dueDate = docSnap.data().dueDate;
+            }
+        } catch (error) {
+            console.error("Error fetching due date from profile:", error);
+        }
+    }
+    return dueDate;
+}
+
+function setDiaryPageEditability(canEdit) {
+    const diaryText = document.getElementById('diary-text');
+    const imageInput = document.getElementById('image-input');
+    const typeDiary = document.getElementById('type-diary');
+    const typeLetter = document.getElementById('type-letter');
+    const saveButton = document.getElementById('save-button');
+
+    if (diaryText) diaryText.disabled = !canEdit;
+    if (imageInput) imageInput.disabled = !canEdit;
+    if (typeDiary) typeDiary.disabled = !canEdit;
+    if (typeLetter) typeLetter.disabled = !canEdit;
+    if (saveButton) saveButton.disabled = !canEdit; // Ensure save button is also controlled here
+}
+
 
 // --- FEATURE FUNCTIONS ---
 
@@ -57,12 +88,12 @@ function calculatePregnancyWeek(dueDateStr) {
 }
 
 // Function to fetch and display weekly pregnancy info
-async function displayWeeklyInfo() {
+async function displayWeeklyInfo(user) {
     const weeklyInfoContent = document.getElementById('weekly-info-content');
     if (!weeklyInfoContent) return;
     weeklyInfoContent.innerHTML = '<div class="loading-spinner"></div>';
 
-    const dueDate = "2026-10-03";
+    const dueDate = await getDueDate(user);
     const { week, day } = calculatePregnancyWeek(dueDate);
 
     try {
@@ -78,7 +109,7 @@ async function displayWeeklyInfo() {
             <h3>${weekData.mom_title}</h3><p>${weekData.mom_content}</p>`;
     } catch (error) {
         console.error("Error fetching weekly info:", error);
-        weeklyInfoContent.parentElement.innerHTML = '<p>주차별 정보를 불러오는 데 실패했습니다.</p>';
+        weeklyInfoContent.parentElement.innerHTML = '<p>주차별 정보를 불러오는 데 실패했습니다. 인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요.</p>';
     }
 }
 
@@ -229,6 +260,16 @@ function setupDiaryPage() {
         window.history.replaceState({}, '', `?person=${person}&date=${date}`);
     }
 
+    // Add event listeners for entry type radio buttons
+    const diaryText = document.getElementById('diary-text');
+    document.getElementById('type-diary').addEventListener('change', () => {
+        diaryText.placeholder = '오늘의 이야기를 기록해보세요...';
+    });
+    document.getElementById('type-letter').addEventListener('change', () => {
+        diaryText.placeholder = '따수니에게 보내는 사랑의 메시지를 작성해주세요...';
+    });
+
+
     const fp = flatpickr("#calendar-container", {
         inline: true,
         defaultDate: date,
@@ -250,12 +291,21 @@ function setupDiaryPage() {
         const docRef = doc(db, "diaries", key);
         try {
             const docSnap = await getDoc(docRef);
-            const diaryText = document.getElementById('diary-text');
             const diaryImage = document.getElementById('diary-image');
             
             if (docSnap.exists()) {
                 const entry = docSnap.data();
                 diaryText.value = entry.text || '';
+                
+                // Set entry type
+                if (entry.type === 'letter') {
+                    document.getElementById('type-letter').checked = true;
+                    diaryText.placeholder = '따수니에게 보내는 사랑의 메시지를 작성해주세요...';
+                } else {
+                    document.getElementById('type-diary').checked = true;
+                    diaryText.placeholder = '오늘의 이야기를 기록해보세요...';
+                }
+
                 if (entry.image) {
                     diaryImage.src = entry.image;
                     diaryImage.style.display = 'block';
@@ -264,6 +314,8 @@ function setupDiaryPage() {
                 }
             } else {
                 diaryText.value = '';
+                document.getElementById('type-diary').checked = true;
+                diaryText.placeholder = '오늘의 이야기를 기록해보세요...';
                 diaryImage.src = '';
                 diaryImage.style.display = 'none';
             }
@@ -279,6 +331,8 @@ function setupDiaryPage() {
         const key = `${person}-${date}`;
         const file = document.getElementById('image-input').files[0];
         const docRef = doc(db, "diaries", key);
+        const entryType = document.querySelector('input[name="entry-type"]:checked').value;
+        const text = document.getElementById('diary-text').value;
 
         const showSaveFeedback = (btn) => {
             const originalText = btn.textContent;
@@ -298,8 +352,8 @@ function setupDiaryPage() {
                 console.error("Error saving entry:", error);
             }
         };
-        
-        const text = document.getElementById('diary-text').value;
+
+        let entryData = { person, date, text, type: entryType };
 
         if (file) {
             const reader = new FileReader();
@@ -318,7 +372,8 @@ function setupDiaryPage() {
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
                     const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                    saveEntry({ person, date, text, image: compressedDataUrl });
+                    entryData.image = compressedDataUrl;
+                    saveEntry(entryData);
                 };
                 img.src = e.target.result;
             };
@@ -326,7 +381,8 @@ function setupDiaryPage() {
         } else {
             const docSnap = await getDoc(docRef);
             const existingImage = (docSnap.exists() && docSnap.data().image) ? docSnap.data().image : '';
-            saveEntry({ person, date, text, image: existingImage });
+            entryData.image = existingImage;
+            saveEntry(entryData);
         }
     });
 
@@ -335,48 +391,102 @@ function setupDiaryPage() {
 
 // --- APP INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
+    const loginButtonHeader = document.getElementById('login-button-header');
+    const profileButtonHeader = document.getElementById('profile-button-header');
+    const logoutButtonHeader = document.getElementById('logout-button-header');
+
     monitorAuthState(
       (user) => {
-        // User is logged in, show the page content and initialize scripts
-        document.body.style.display = 'block';
+        // User is logged in
+        if (profileButtonHeader) profileButtonHeader.style.display = 'block';
+        if (logoutButtonHeader) logoutButtonHeader.style.display = 'block';
+        if (loginButtonHeader) loginButtonHeader.style.display = 'none';
 
-        // Logout Button
-        const logoutButton = document.getElementById('logout-button');
-        if(logoutButton) {
-            logoutButton.addEventListener('click', async () => {
-                try {
-                    await logout();
-                    window.location.href = 'login.html';
-                } catch (error) {
-                    console.error('Logout failed:', error);
-                }
-            });
-        }
-
-        // Page specific initializations
+        // Page specific initializations for authenticated users
         if (window.location.pathname.includes('index.html') || window.location.pathname === '/pregnancy-diary/') {
             loadProfilePictures();
-            displayWeeklyInfo();
+            const ddayCounter = document.getElementById('dday-counter');
+            if (ddayCounter) {
+                const dynamicDueDate = await getDueDate(user);
+                ddayCounter.textContent = calculateDDay(dynamicDueDate);
+            }
+            await displayWeeklyInfo(user); // Pass user to displayWeeklyInfo and await it
             renderMainCalendar();
             displayLatestEntries();
-            loadTodaysMood(user);
+            loadTodaysMood(user); // Load mood for the logged-in user
 
             document.querySelectorAll('.mood-button').forEach(button => {
                 button.addEventListener('click', () => {
                     saveMood(button.dataset.mood, user);
                 });
+                button.disabled = false; // Enable mood buttons
             });
+            // Show mood buttons container if it was hidden
+            const moodButtonsContainer = document.getElementById('mood-buttons');
+            if (moodButtonsContainer) moodButtonsContainer.style.display = 'flex';
         }
 
         if (window.location.pathname.includes('diary')) {
             setupDiaryPage();
+            setDiaryPageEditability(true); // Enable editing for logged-in users
         }
       },
       () => {
-        // User is not logged in, redirect to login page.
-        if (!window.location.pathname.includes('login.html')) {
-            window.location.href = 'login.html';
+        // User is not logged in
+        if (profileButtonHeader) profileButtonHeader.style.display = 'none';
+        if (logoutButtonHeader) logoutButtonHeader.style.display = 'none';
+        if (loginButtonHeader) loginButtonHeader.style.display = 'block';
+
+        // Page specific initializations for unauthenticated users
+        if (window.location.pathname.includes('index.html') || window.location.pathname === '/pregnancy-diary/') {
+            loadProfilePictures(); // Still load default profile pictures
+            const ddayCounter = document.getElementById('dday-counter');
+            if (ddayCounter) {
+                const dynamicDueDate = await getDueDate(null); // Use null for unauthenticated user
+                ddayCounter.textContent = calculateDDay(dynamicDueDate);
+            }
+            await displayWeeklyInfo(null); // Pass null for unauthenticated user
+            renderMainCalendar();
+            displayLatestEntries();
+            
+            // Disable mood tracking for unauthenticated users
+            const moodButtonsContainer = document.getElementById('mood-buttons');
+            const todaysMoodEl = document.getElementById('todays-mood');
+            if (moodButtonsContainer) moodButtonsContainer.style.display = 'none';
+            if (todaysMoodEl) todaysMoodEl.textContent = '로그인하여 오늘의 기분을 기록해보세요!';
+        }
+
+        if (window.location.pathname.includes('diary')) {
+            // Unauthenticated users can view, but not save
+            setupDiaryPage();
+            setDiaryPageEditability(false); // Disable editing for logged-out users
+            // Optionally, add a message
+            const diaryEntry = document.getElementById('diary-entry');
+            if (diaryEntry && !diaryEntry.querySelector('#login-prompt')) {
+                const loginPrompt = document.createElement('p');
+                loginPrompt.id = 'login-prompt';
+                loginPrompt.style.textAlign = 'center';
+                loginPrompt.style.marginTop = '20px';
+                loginPrompt.style.color = '#c62828';
+                loginPrompt.textContent = '일기를 작성하려면 로그인해주세요.';
+                diaryEntry.appendChild(loginPrompt);
+            }
+        }
+        // Redirect if on a page that strictly requires login (e.g., profile.html, which is handled in profile.js)
+        if (window.location.pathname.includes('profile.html')) {
+             window.location.href = 'login.html';
         }
       }
     );
+    // Attach logout event listener to the header logout button if it exists
+    if(logoutButtonHeader) {
+        logoutButtonHeader.addEventListener('click', async () => {
+            try {
+                await logout();
+                window.location.href = 'index.html'; // Redirect to index after logout
+            } catch (error) {
+                console.error('Logout failed:', error);
+            }
+        });
+    }
 });

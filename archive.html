@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>모아보기 - 따수니의 성장 일기</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+    <link href='./style.css' rel='stylesheet'>
+</head>
+<body style="display: none;">
+    <div class="container">
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1 style="margin: 0;">모아보기</h1>
+            <a href="index.html" class="header-button">홈으로</a>
+        </header>
+
+        <div class="tab-navigation">
+            <button class="tab-button active" data-tab="all">전체 글 보기</button>
+            <button class="tab-button" data-tab="letters">편지 모음</button>
+            <button class="tab-button" data-tab="gallery">사진 갤러리</button>
+        </div>
+
+        <section id="archive-content" class="archive-content-container">
+            <!-- Content will be loaded here by archive.js -->
+        </section>
+    </div>
+
+    <!-- Modal from gallery.html, now used here -->
+    <div id="image-modal" class="modal">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="modal-image">
+        <div id="modal-caption"></div>
+    </div>
+
+    <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js"></script>
+    <script type="module" src="./auth.js"></script>
+    <script type="module" src="./archive.js"></script>
+
+    <script type="module">
+        import { monitorAuthState } from './auth.js';
+        monitorAuthState(
+            user => { document.body.style.display = 'block'; },
+            () => { window.location.href = 'login.html'; }
+        );
+    </script>
+</body>
+</html>
