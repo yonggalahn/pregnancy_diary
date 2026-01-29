@@ -438,6 +438,34 @@ header a:hover {
   transform: translateY(-2px);
 }
 
+/* Tab Navigation Styles */
+.tab-navigation {
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  font-family: 'Gaegu', sans-serif;
+  font-size: 1.3em;
+  font-weight: 700;
+  padding: 10px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #a1887f;
+  border-bottom: 3px solid transparent;
+  transition: color 0.3s, border-bottom-color 0.3s;
+}
+
+.tab-button:hover {
+  color: #5d4037;
+}
+
+.tab-button.active {
+  color: #5d4037;
+  border-bottom-color: #8d6e63;
+}
+
 /* Gallery Page Styles */
 .gallery-grid-container {
   display: grid;
