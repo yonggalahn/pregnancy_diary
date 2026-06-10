@@ -225,16 +225,16 @@ async function loadTodaysMood() {
         moodButtonsContainer.style.display = 'flex';
 
         let statusHtml = `
-            <div class="couple-moods-container" style="display: flex; justify-content: center; gap: 40px; margin-top: 15px; font-family: 'Gaegu', cursive;">
-                <div class="mood-card mikael" style="text-align: center; background: #efebe9; padding: 15px 25px; border-radius: 15px; min-width: 120px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                    <div style="font-size: 1.1em; color: #5d4037; font-weight: bold; margin-bottom: 5px;">🧔 미카엘</div>
-                    <div style="font-size: 2em; margin: 5px 0;">${mikaelMood || '❔'}</div>
-                    <div style="font-size: 0.9em; color: #8d6e63;">${mikaelMood ? '기분 입력 완료' : '입력 대기 중'}</div>
+            <div class="couple-moods-container" style="display: flex; justify-content: center; gap: 40px; margin-top: 20px;">
+                <div class="mood-card mikael" style="text-align: center; background: var(--primary-light); padding: 20px 30px; border-radius: var(--radius-md); min-width: 140px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+                    <div style="font-size: 1em; color: var(--text-primary); font-weight: 600; margin-bottom: 8px;">🧔 미카엘</div>
+                    <div style="font-size: 2.2em; margin: 8px 0; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));">${mikaelMood || '❔'}</div>
+                    <div style="font-size: 0.85em; color: var(--text-secondary);">${mikaelMood ? '기분 기록 완료' : '기분 대기 중'}</div>
                 </div>
-                <div class="mood-card agatha" style="text-align: center; background: #fde8e8; padding: 15px 25px; border-radius: 15px; min-width: 120px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                    <div style="font-size: 1.1em; color: #c2185b; font-weight: bold; margin-bottom: 5px;">👩 아가다</div>
-                    <div style="font-size: 2em; margin: 5px 0;">${agathaMood || '❔'}</div>
-                    <div style="font-size: 0.9em; color: #c2185b;">${agathaMood ? '기분 입력 완료' : '입력 대기 중'}</div>
+                <div class="mood-card agatha" style="text-align: center; background: var(--accent-light); padding: 20px 30px; border-radius: var(--radius-md); min-width: 140px; box-shadow: var(--shadow-sm); border: 1px solid var(--accent-light);">
+                    <div style="font-size: 1em; color: var(--text-primary); font-weight: 600; margin-bottom: 8px;">👩 아가다</div>
+                    <div style="font-size: 2.2em; margin: 8px 0; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));">${agathaMood || '❔'}</div>
+                    <div style="font-size: 0.85em; color: var(--text-secondary);">${agathaMood ? '기분 기록 완료' : '기분 대기 중'}</div>
                 </div>
             </div>
         `;
@@ -319,75 +319,75 @@ async function displayBiorhythms() {
         };
 
         biorhythmContent.innerHTML = `
-            <div class="biorhythm-comparison" style="display: flex; flex-direction: column; gap: 20px; font-family: 'Gaegu', cursive;">
-                <div class="bio-person-card" style="background: #efebe9; padding: 18px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                    <h3 style="margin-top: 0; color: #5d4037; font-size: 1.3em; margin-bottom: 12px;">🧔 미카엘의 상태</h3>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="biorhythm-comparison" style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="bio-person-card" style="background: var(--primary-light); padding: 20px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--text-primary); font-size: 1.15em; margin-bottom: 15px; font-weight: 600;">🧔 미카엘의 상태</h3>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
                         <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: #5d4037; margin-bottom: 3px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9em; color: var(--text-secondary); margin-bottom: 5px;">
                                 <span>🔋 신체 (${mBio.physical}%)</span>
-                                <span style="font-weight: bold; color: ${getStatusColor(mBio.physical)}">${mBio.physical > 40 ? '최상' : (mBio.physical < -40 ? '저조' : '보통')}</span>
+                                <span style="font-weight: 600; color: ${getStatusColor(mBio.physical)}">${mBio.physical > 40 ? '최상' : (mBio.physical < -40 ? '저조' : '보통')}</span>
                             </div>
-                            <div style="width: 100%; height: 12px; background: #e0dcd9; border-radius: 6px; overflow: hidden;">
-                                <div style="width: ${getPercentage(mBio.physical)}%; height: 100%; background: ${getStatusColor(mBio.physical)}; border-radius: 6px; transition: width 0.5s ease-in-out;"></div>
+                            <div style="width: 100%; height: 8px; background: rgba(46, 42, 41, 0.08); border-radius: 4px; overflow: hidden;">
+                                <div style="width: ${getPercentage(mBio.physical)}%; height: 100%; background: ${getStatusColor(mBio.physical)}; border-radius: 4px; transition: width 0.5s ease-in-out;"></div>
                             </div>
                         </div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: #5d4037; margin-bottom: 3px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9em; color: var(--text-secondary); margin-bottom: 5px;">
                                 <span>❤️ 감정 (${mBio.emotional}%)</span>
-                                <span style="font-weight: bold; color: ${getStatusColor(mBio.emotional)}">${mBio.emotional > 40 ? '안정' : (mBio.emotional < -40 ? '예민' : '보통')}</span>
+                                <span style="font-weight: 600; color: ${getStatusColor(mBio.emotional)}">${mBio.emotional > 40 ? '안정' : (mBio.emotional < -40 ? '예민' : '보통')}</span>
                             </div>
-                            <div style="width: 100%; height: 12px; background: #e0dcd9; border-radius: 6px; overflow: hidden;">
-                                <div style="width: ${getPercentage(mBio.emotional)}%; height: 100%; background: ${getStatusColor(mBio.emotional)}; border-radius: 6px; transition: width 0.5s ease-in-out;"></div>
+                            <div style="width: 100%; height: 8px; background: rgba(46, 42, 41, 0.08); border-radius: 4px; overflow: hidden;">
+                                <div style="width: ${getPercentage(mBio.emotional)}%; height: 100%; background: ${getStatusColor(mBio.emotional)}; border-radius: 4px; transition: width 0.5s ease-in-out;"></div>
                             </div>
                         </div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: #5d4037; margin-bottom: 3px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9em; color: var(--text-secondary); margin-bottom: 5px;">
                                 <span>🧠 지성 (${mBio.intellectual}%)</span>
-                                <span style="font-weight: bold; color: ${getStatusColor(mBio.intellectual)}">${mBio.intellectual > 40 ? '명석' : (mBio.intellectual < -40 ? '둔조' : '보통')}</span>
+                                <span style="font-weight: 600; color: ${getStatusColor(mBio.intellectual)}">${mBio.intellectual > 40 ? '명석' : (mBio.intellectual < -40 ? '둔조' : '보통')}</span>
                             </div>
-                            <div style="width: 100%; height: 12px; background: #e0dcd9; border-radius: 6px; overflow: hidden;">
-                                <div style="width: ${getPercentage(mBio.intellectual)}%; height: 100%; background: ${getStatusColor(mBio.intellectual)}; border-radius: 6px; transition: width 0.5s ease-in-out;"></div>
+                            <div style="width: 100%; height: 8px; background: rgba(46, 42, 41, 0.08); border-radius: 4px; overflow: hidden;">
+                                <div style="width: ${getPercentage(mBio.intellectual)}%; height: 100%; background: ${getStatusColor(mBio.intellectual)}; border-radius: 4px; transition: width 0.5s ease-in-out;"></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bio-person-card" style="background: #fde8e8; padding: 18px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                    <h3 style="margin-top: 0; color: #c2185b; font-size: 1.3em; margin-bottom: 12px;">👩 아가다의 상태</h3>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="bio-person-card" style="background: var(--accent-light); padding: 20px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--accent-light);">
+                    <h3 style="margin-top: 0; color: var(--text-primary); font-size: 1.15em; margin-bottom: 15px; font-weight: 600;">👩 아가다의 상태</h3>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
                         <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: #c2185b; margin-bottom: 3px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9em; color: var(--text-secondary); margin-bottom: 5px;">
                                 <span>🔋 신체 (${aBio.physical}%)</span>
-                                <span style="font-weight: bold; color: ${getStatusColor(aBio.physical)}">${aBio.physical > 40 ? '최상' : (aBio.physical < -40 ? '저조' : '보통')}</span>
+                                <span style="font-weight: 600; color: ${getStatusColor(aBio.physical)}">${aBio.physical > 40 ? '최상' : (aBio.physical < -40 ? '저조' : '보통')}</span>
                             </div>
-                            <div style="width: 100%; height: 12px; background: #f5d4d4; border-radius: 6px; overflow: hidden;">
-                                <div style="width: ${getPercentage(aBio.physical)}%; height: 100%; background: ${getStatusColor(aBio.physical)}; border-radius: 6px; transition: width 0.5s ease-in-out;"></div>
+                            <div style="width: 100%; height: 8px; background: rgba(46, 42, 41, 0.08); border-radius: 4px; overflow: hidden;">
+                                <div style="width: ${getPercentage(aBio.physical)}%; height: 100%; background: ${getStatusColor(aBio.physical)}; border-radius: 4px; transition: width 0.5s ease-in-out;"></div>
                             </div>
                         </div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: #c2185b; margin-bottom: 3px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: var(--text-secondary); margin-bottom: 5px;">
                                 <span>❤️ 감정 (${aBio.emotional}%)</span>
-                                <span style="font-weight: bold; color: ${getStatusColor(aBio.emotional)}">${aBio.emotional > 40 ? '안정' : (aBio.emotional < -40 ? '예민' : '보통')}</span>
+                                <span style="font-weight: 600; color: ${getStatusColor(aBio.emotional)}">${aBio.emotional > 40 ? '안정' : (aBio.emotional < -40 ? '예민' : '보통')}</span>
                             </div>
-                            <div style="width: 100%; height: 12px; background: #f5d4d4; border-radius: 6px; overflow: hidden;">
-                                <div style="width: ${getPercentage(aBio.emotional)}%; height: 100%; background: ${getStatusColor(aBio.emotional)}; border-radius: 6px; transition: width 0.5s ease-in-out;"></div>
+                            <div style="width: 100%; height: 8px; background: rgba(46, 42, 41, 0.08); border-radius: 4px; overflow: hidden;">
+                                <div style="width: ${getPercentage(aBio.emotional)}%; height: 100%; background: ${getStatusColor(aBio.emotional)}; border-radius: 4px; transition: width 0.5s ease-in-out;"></div>
                             </div>
                         </div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: #c2185b; margin-bottom: 3px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: var(--text-secondary); margin-bottom: 5px;">
                                 <span>🧠 지성 (${aBio.intellectual}%)</span>
-                                <span style="font-weight: bold; color: ${getStatusColor(aBio.intellectual)}">${aBio.intellectual > 40 ? '명석' : (aBio.intellectual < -40 ? '둔조' : '보통')}</span>
+                                <span style="font-weight: 600; color: ${getStatusColor(aBio.intellectual)}">${aBio.intellectual > 40 ? '명석' : (aBio.intellectual < -40 ? '둔조' : '보통')}</span>
                             </div>
-                            <div style="width: 100%; height: 12px; background: #f5d4d4; border-radius: 6px; overflow: hidden;">
-                                <div style="width: ${getPercentage(aBio.intellectual)}%; height: 100%; background: ${getStatusColor(aBio.intellectual)}; border-radius: 6px; transition: width 0.5s ease-in-out;"></div>
+                            <div style="width: 100%; height: 8px; background: rgba(46, 42, 41, 0.08); border-radius: 4px; overflow: hidden;">
+                                <div style="width: ${getPercentage(aBio.intellectual)}%; height: 100%; background: ${getStatusColor(aBio.intellectual)}; border-radius: 4px; transition: width 0.5s ease-in-out;"></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bio-guide-box" style="background: #fff8e1; border-left: 5px solid #ffb300; padding: 15px; border-radius: 8px; font-size: 1.05em; line-height: 1.5; color: #5d4037;">
-                    <strong style="font-size: 1.1em; display: block; margin-bottom: 8px;">💌 오늘의 부부 케어 가이드</strong>
+                <div class="bio-guide-box" style="background: #FFFDF0; border-left: 4px solid var(--accent); padding: 18px; border-radius: var(--radius-sm); font-size: 1.05em; line-height: 1.6; color: var(--text-primary); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); border-left-width: 4px;">
+                    <strong style="font-size: 1.1em; display: block; margin-bottom: 8px; color: var(--text-primary);">💌 오늘의 부부 케어 가이드</strong>
                     <div>${guideText}</div>
                 </div>
             </div>

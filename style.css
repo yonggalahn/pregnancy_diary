@@ -1,30 +1,91 @@
-@import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg-color: #FAF9F5;
+  --card-bg: #FFFFFF;
+  --text-primary: #2E2A29;
+  --text-secondary: #786E6B;
+  --text-muted: #A39996;
+  --primary: #9E8B86;      /* Warm Rose Taupe */
+  --primary-light: #F6F3F0;
+  --primary-hover: #867470;
+  --accent: #E5A89E;       /* Soft Coral Accent */
+  --accent-light: #FDF1EF;
+  --border-color: rgba(46, 42, 41, 0.06);
+  --shadow-sm: 0 2px 8px rgba(46, 42, 41, 0.03);
+  --shadow-md: 0 12px 28px -4px rgba(46, 42, 41, 0.05), 0 4px 12px -2px rgba(46, 42, 41, 0.02);
+  --shadow-lg: 0 24px 48px -8px rgba(46, 42, 41, 0.08), 0 8px 20px -4px rgba(46, 42, 41, 0.03);
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
-  font-family: 'Gaegu', sans-serif;
-  text-align: center;
-  margin: 0;
-  background-color: #fff5e6; /* Soft cream background */
-  background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffe8cc' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
-  color: #5d4037; /* Darker brown for text */
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
 }
 
 .container {
-  background-color: rgba(255, 255, 255, 0.7);
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 20px;
-  border-radius: 20px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 40px;
+  background-color: var(--card-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
 }
 
 h1 {
-  font-size: 3.5em;
+  font-size: 2.5em;
   font-weight: 700;
-  color: #8d6e63; /* Warm brown for title */
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-  margin-top: 20px;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+h2 {
+  font-size: 1.8em;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+}
+
+h3 {
+  font-size: 1.3em;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Metric / Dashboard Widgets */
+#dday-counter {
+  font-size: 3em;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.04em;
+  text-align: center;
   margin-bottom: 30px;
+  background: var(--primary-light);
+  padding: 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  display: inline-block;
+  min-width: 250px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: var(--shadow-sm);
 }
 
 main {
@@ -32,162 +93,71 @@ main {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
 }
 
 .profiles {
   display: flex;
   justify-content: center;
-  gap: 60px;
-  margin: 30px 0;
+  gap: 40px;
+  margin: 40px 0;
+  width: 100%;
+}
+
+.profile {
+  text-align: center;
 }
 
 .profile a {
   text-decoration: none;
-  color: #5d4037;
-  font-size: 1.5em;
-  font-weight: 700;
-  transition: color 0.3s;
-}
-
-.profile a:hover {
-    color: #a1887f;
+  color: var(--text-primary);
+  font-size: 1.1em;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
 .profile img {
   display: block;
-  width: 180px;
-  height: 180px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   object-fit: cover;
-  object-position: 50% 0;
-  border: 5px solid #ffffff;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-  transition: transform 0.3s, box-shadow 0.3s;
+  border: 4px solid var(--card-bg);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
 }
 
 .profile img:hover {
-  transform: scale(1.08);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-light);
 }
 
-#calendar-container {
-  width: 90%;
-  max-width: 600px;
-  margin-top: 20px;
-  border: none;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-/* Diary Page Styles */
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  background-color: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  border-radius: 10px;
-  margin: 20px;
-}
-
-header a {
-  text-decoration: none;
-  color: #5d4037;
-  font-size: 1.2em;
-  padding: 10px 18px;
-  border: 2px solid #bcaaa4;
-  border-radius: 20px;
-  transition: all 0.3s;
-  font-weight: 700;
-}
-
-header a:hover {
-  background-color: #bcaaa4;
-  color: #fff;
-}
-
-#diary-entry {
-  width: 90%;
-  max-width: 600px;
-  margin: 20px auto;
-  background-color: #ffffff;
+/* Cards & Section layouts */
+.latest-diary-card {
+  background-color: var(--card-bg);
   padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  text-align: left;
+  transition: var(--transition);
 }
 
-#diary-date {
-  font-size: 2em;
-  font-weight: 700;
-  color: #8d6e63;
-  margin-bottom: 20px;
+.latest-diary-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
 }
 
-#diary-text {
-  width: 100%;
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  font-family: 'Gaegu', sans-serif;
-  font-size: 1.2em;
-  box-sizing: border-box;
-  min-height: 150px;
-  line-height: 1.6;
-}
-
-#save-button {
-  display: inline-block;
-  background-color: #a1887f; /* Softer, brownish-pink */
-  color: white;
-  padding: 12px 25px;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  margin-top: 20px;
-  font-size: 1.2em;
-  font-weight: 700;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-#save-button:hover {
-  background-color: #8d6e63; /* Darker shade */
-  transform: translateY(-2px);
-}
-
-#image-input {
-    margin: 15px 0;
-    font-size: 1em;
-}
-
-#diary-image {
-    max-width: 100%;
-    border-radius: 10px;
-    margin-top: 15px;
-}
-
-/* Styles for main calendar highlighting */
-.flatpickr-day.has-diary-entry {
-  background-color: #ffe0b2; /* Light orange background */
-  border-color: #ffcc80; /* Slightly darker orange border */
-  color: #8d6e63; /* Darker text */
-  position: relative;
-}
-
-.flatpickr-day.has-diary-entry .entry-indicator {
-  position: absolute;
-  bottom: 2px;
-  right: 2px;
-  font-size: 0.7em;
-  line-height: 1;
-}
-
-/* Styles for Latest Diaries section */
 .latest-diaries-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px;
-  margin-top: 20px;
+  gap: 24px;
+  margin-top: 24px;
+  width: 100%;
 }
 
 @media (min-width: 768px) {
@@ -196,388 +166,407 @@ header a:hover {
   }
 }
 
-.latest-diary-card {
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  text-align: left;
-}
-
 .latest-diary-card h3 {
-  font-size: 1.8em;
-  color: #8d6e63;
-  margin-top: 0;
-  margin-bottom: 10px;
+  font-size: 1.4em;
+  color: var(--text-primary);
+  margin-bottom: 8px;
 }
 
 .latest-diary-card p {
-  font-size: 1.1em;
-  color: #5d4037;
-  line-height: 1.5;
-  margin-bottom: 10px;
+  font-size: 1.05em;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 15px;
 }
 
 .latest-diary-card .latest-entry-image {
-  max-width: 100%;
-  height: auto;
-  border-radius: 10px;
-  margin-bottom: 10px;
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin-bottom: 15px;
+  border: 1px solid var(--border-color);
 }
 
-.latest-diary-card a {
+/* Common UI Elements & Buttons */
+.nav-button, .latest-diary-card a, .header-button {
   display: inline-block;
-  background-color: #bcaaa4;
-  color: white;
-  padding: 8px 15px;
-  border-radius: 20px;
+  background-color: var(--primary);
+  color: #FFFFFF;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
   text-decoration: none;
   font-size: 1em;
-  font-weight: 700;
-  transition: background-color 0.3s;
-}
-
-.latest-diary-card a:hover {
-  background-color: #a1887f;
-}
-
-/* Styles for Akang Letterbox Page */
-.header-button {
-  background-color: #bcaaa4;
-  color: white;
-  padding: 10px 18px;
-  border-radius: 20px;
-  text-decoration: none;
-  font-size: 1.2em;
-  font-weight: 700;
-  transition: background-color 0.3s;
-}
-
-.header-button:hover {
-  background-color: #a1887f;
-}
-
-.letter-form-section h2, .letters-list-section h2 {
-    font-size: 2em;
-    color: #8d6e63;
-    margin-top: 40px;
-    margin-bottom: 20px;
-}
-
-#letter-content {
-    width: calc(100% - 30px);
-    padding: 15px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    font-family: 'Gaegu', sans-serif;
-    font-size: 1.2em;
-    box-sizing: border-box;
-    min-height: 200px;
-    line-height: 1.6;
-    margin-bottom: 15px;
-}
-
-#save-letter-button {
-    display: inline-block;
-    background-color: #a1887f;
-    color: white;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    font-size: 1.2em;
-    font-weight: 700;
-    transition: background-color 0.3s, transform 0.2s;
-}
-
-#save-letter-button:hover {
-    background-color: #8d6e63;
-    transform: translateY(-2px);
-}
-
-#letters-list {
-    margin-top: 30px;
-    text-align: left;
-}
-
-.letter-card {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
-}
-
-.letter-card .letter-author {
-    font-size: 1.1em;
-    font-weight: 700;
-    color: #a1887f;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 5px;
-}
-
-.letter-card .letter-content-display {
-    font-size: 1.2em;
-    line-height: 1.7;
-    white-space: pre-wrap; /* Preserves whitespace and line breaks */
-    color: #5d4037;
-}
-
-/* Loading Spinner Styles */
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.loading-spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border-left-color: #a1887f;
-  animation: spin 1s ease infinite;
-  margin: 20px auto;
-}
-
-/* Responsive Design for smaller screens */
-@media (max-width: 600px) {
-  .container {
-    margin: 10px;
-    padding: 15px;
-  }
-
-  h1 {
-    font-size: 2.5em;
-    margin-bottom: 20px;
-  }
-
-  .profiles {
-    gap: 20px;
-    flex-direction: column;
-  }
-
-  .profile img {
-    width: 120px;
-    height: 120px;
-  }
-
-  #dday-counter {
-    font-size: 1.5em;
-  }
-
-  #weekly-info-section h2 {
-    font-size: 1.8em;
-  }
-
-  .akang-letter-link a {
-    font-size: 1.2em;
-    padding: 12px 25px;
-  }
-
-  .latest-diary-card h3 {
-    font-size: 1.5em;
-  }
-
-  header {
-    padding: 15px;
-    margin: 10px;
-  }
-
-  header h1 {
-    font-size: 1.8em;
-  }
-}
-
-/* Mood Tracker Styles */
-.mood-button {
-  background: none;
+  font-weight: 500;
   border: none;
-  font-size: 2.5em;
   cursor: pointer;
-  padding: 0;
-  transition: transform 0.2s;
+  transition: var(--transition);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
 }
 
-.mood-button:hover, .mood-button:focus {
-  transform: scale(1.2);
-}
-
-/* Header Nav Button Styles */
-.header-button-small {
-  font-family: 'Gaegu', sans-serif;
-  font-size: 1.1em;
-  font-weight: 700;
-  background-color: #a1887f;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  padding: 8px 12px;
-  text-decoration: none;
-  transition: background-color 0.3s;
-}
-.header-button-small:hover {
-  background-color: #8d6e63;
-}
-
-/* Main Navigation Button Styles */
-.nav-button {
-  background-color: #a1887f;
-  color: white;
-  padding: 15px 30px;
-  border-radius: 25px;
-  text-decoration: none;
-  font-size: 1.2em;
-  font-weight: 700;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-.nav-button:hover {
-  background-color: #8d6e63;
+.nav-button:hover, .latest-diary-card a:hover, .header-button:hover {
+  background-color: var(--primary-hover);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
-/* Tab Navigation Styles */
-.tab-navigation {
-  border-bottom: 2px solid #e0e0e0;
-  margin-bottom: 20px;
+/* Mood Tracker Widget */
+#mood-tracker-section {
+  width: 100%;
 }
 
-.tab-button {
-  font-family: 'Gaegu', sans-serif;
-  font-size: 1.3em;
-  font-weight: 700;
-  padding: 10px 20px;
-  border: none;
-  background: none;
+.mood-button {
+  background: var(--primary-light);
+  border: 1px solid var(--border-color);
+  font-size: 2.2em;
   cursor: pointer;
-  color: #a1887f;
-  border-bottom: 3px solid transparent;
-  transition: color 0.3s, border-bottom-color 0.3s;
+  padding: 10px;
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
 }
 
-.tab-button:hover {
-  color: #5d4037;
+.mood-button:hover {
+  transform: scale(1.15) translateY(-4px);
+  background-color: var(--accent-light);
+  border-color: var(--accent);
 }
 
-.tab-button.active {
-  color: #5d4037;
-  border-bottom-color: #8d6e63;
+.mood-card {
+  transition: var(--transition);
+  border: 1px solid var(--border-color);
 }
 
-/* Gallery Page Styles */
+.mood-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* Biorhythm Progress Bars */
+.bio-person-card {
+  transition: var(--transition);
+  border: 1px solid var(--border-color);
+}
+
+.bio-person-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md) !important;
+}
+
+.bio-guide-box {
+  background: #FFFBF0 !important;
+  border-left: 4px solid var(--accent) !important;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Diary / Write Page Layouts */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 30px;
+  background-color: var(--card-bg);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  margin-bottom: 30px;
+}
+
+header a {
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 1.05em;
+  font-weight: 500;
+  padding: 10px 20px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+header a:hover {
+  background-color: var(--primary-light);
+  color: var(--text-primary);
+}
+
+#diary-entry {
+  width: 100%;
+  background-color: var(--card-bg);
+  padding: 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+#diary-date {
+  font-size: 2.2em;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+  letter-spacing: -0.03em;
+}
+
+#diary-text {
+  width: 100%;
+  padding: 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  font-family: inherit;
+  font-size: 1.1em;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  min-height: 200px;
+  line-height: 1.7;
+  transition: var(--transition);
+  background-color: var(--primary-light);
+}
+
+#diary-text:focus {
+  outline: none;
+  background-color: var(--card-bg);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(158, 139, 134, 0.15);
+}
+
+#save-button {
+  display: block;
+  width: 100%;
+  background-color: var(--primary);
+  color: white;
+  padding: 16px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  margin-top: 24px;
+  font-size: 1.15em;
+  font-weight: 600;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+#save-button:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+#image-input {
+  margin: 20px 0;
+  font-size: 0.95em;
+  color: var(--text-secondary);
+}
+
+#diary-image {
+  max-width: 100%;
+  border-radius: var(--radius-sm);
+  margin-bottom: 20px;
+  border: 1px solid var(--border-color);
+}
+
+#calendar-container {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 30px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Flatpickr Modern Customization */
+.flatpickr-calendar {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow-md) !important;
+  font-family: inherit !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.flatpickr-day.has-diary-entry {
+  background-color: var(--accent-light) !important;
+  border-color: var(--accent) !important;
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+}
+
+.flatpickr-day.has-diary-entry .entry-indicator {
+  bottom: 4px !important;
+  font-size: 0.65em !important;
+}
+
+.flatpickr-day.selected {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+/* Gallery & Archive Page layout grids */
 .gallery-grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  width: 100%;
 }
 
 .gallery-item {
   width: 100%;
-  height: 150px;
+  height: 200px;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
   cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
 }
 
 .gallery-item:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  transform: scale(1.03) translateY(-4px);
+  box-shadow: var(--shadow-md);
 }
 
 .gallery-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: var(--transition);
 }
 
-/* Image Modal Styles */
+/* Modal for Image Viewing */
 .modal {
   display: none;
   position: fixed;
   z-index: 1000;
-  padding-top: 60px;
+  padding-top: 80px;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.9);
+  background-color: rgba(46, 42, 41, 0.95);
+  backdrop-filter: blur(8px);
 }
 
 .modal-content {
   margin: auto;
   display: block;
-  width: 80%;
-  max-width: 700px;
+  width: 85%;
+  max-width: 800px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
 }
 
 #modal-caption {
-  margin: auto;
-  display: block;
-  width: 80%;
-  max-width: 700px;
+  margin: 20px auto;
   text-align: center;
-  color: #ccc;
-  padding: 10px 0;
-  height: 150px;
-}
-
-.modal-content, #modal-caption {
-  animation-name: zoom;
-  animation-duration: 0.6s;
-}
-
-@keyframes zoom {
-  from {transform:scale(0)}
-  to {transform:scale(1)}
+  color: #FFFFFF;
+  font-size: 1.2em;
+  font-weight: 500;
+  max-width: 800px;
 }
 
 .close-modal {
   position: absolute;
-  top: 15px;
-  right: 35px;
-  color: #f1f1f1;
+  top: 30px;
+  right: 40px;
+  color: #FFFFFF;
   font-size: 40px;
-  font-weight: bold;
-  transition: 0.3s;
-}
-
-.close-modal:hover,
-.close-modal:focus {
-  color: #bbb;
-  text-decoration: none;
+  font-weight: 300;
   cursor: pointer;
+  transition: var(--transition);
 }
 
-@media (max-width: 600px) {
-  .modal-content {
-    width: 100%;
+.close-modal:hover {
+  color: var(--accent);
+  transform: rotate(90deg);
+}
+
+/* Letterbox Page components */
+.letter-card {
+  background-color: var(--card-bg);
+  padding: 30px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 24px;
+  transition: var(--transition);
+}
+
+.letter-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.letter-card .letter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.letter-card .letter-date {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.letter-card .letter-author {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.letter-card .letter-content-display {
+  font-size: 1.1em;
+  line-height: 1.7;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+}
+
+/* Loading Spinners */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+  border: 3px solid rgba(158, 139, 134, 0.1);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border-left-color: var(--primary);
+  animation: spin 0.8s linear infinite;
+  margin: 40px auto;
+}
+
+/* Responsive Overrides */
+@media (max-width: 768px) {
+  .container {
+    margin: 20px 10px;
+    padding: 20px;
+    border-radius: var(--radius-md);
   }
+
+  h1 {
+    font-size: 2em;
+  }
+
+  .profiles {
+    gap: 20px;
+    flex-direction: row;
+  }
+
+  .profile img {
+    width: 100px;
+    height: 100px;
+  }
+
   .main-nav-links {
     flex-direction: column;
+    width: 100%;
+    gap: 15px;
   }
-}
-
-/* Biorhythm & Mood Tracker Custom Styles */
-.mood-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.mood-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.1) !important;
-}
-
-.bio-person-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.bio-person-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.1) !important;
-}
-
-.bio-guide-box {
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
