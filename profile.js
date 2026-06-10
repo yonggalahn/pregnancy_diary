@@ -9,6 +9,9 @@ const statusEl = document.getElementById('upload-status');
 const currentProfilePic = document.getElementById('current-profile-pic');
 const dueDateInput = document.getElementById('due-date-input');
 const saveDueDateButton = document.getElementById('save-due-date-button');
+const birthDateInput = document.getElementById('birth-date-input');
+const saveBirthDateButton = document.getElementById('save-birth-date-button');
+const birthDateStatus = document.getElementById('birth-date-status');
 
 // --- UTILITY FUNCTIONS ---
 
@@ -45,6 +48,9 @@ async function loadUserProfile(person) {
             currentProfilePic.src = data.profilePicUrl || `image/${person}.jpg`;
             if (data.dueDate) {
                 dueDateInput.value = data.dueDate;
+            }
+            if (data.birthDate) {
+                birthDateInput.value = data.birthDate;
             }
         } else {
             currentProfilePic.src = `image/${person}.jpg`; // Default if no profile
@@ -120,6 +126,22 @@ async function saveDueDate(person) {
     }
 }
 
+async function saveBirthDate(person) {
+    const birthDate = birthDateInput.value;
+    if (!birthDate) {
+        showFeedback(birthDateStatus, '생년월일을 선택해주세요', 'orange');
+        return;
+    }
+
+    try {
+        await setDoc(doc(db, "profiles", person), { birthDate }, { merge: true });
+        showSaveFeedback(saveBirthDateButton);
+    } catch (error) {
+        console.error("Error saving birth date:", error);
+        showFeedback(birthDateStatus, '저장 실패', 'red');
+    }
+}
+
 // --- INITIALIZATION ---
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -152,9 +174,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 uploadProfilePicture(person, file);
             });
             saveDueDateButton.addEventListener('click', () => saveDueDate(person));
+            saveBirthDateButton.addEventListener('click', () => saveBirthDate(person));
 
             // Enable controls
-            [profilePicInput, uploadButton, dueDateInput, saveDueDateButton].forEach(el => el.disabled = false);
+            [profilePicInput, uploadButton, dueDateInput, saveDueDateButton, birthDateInput, saveBirthDateButton].forEach(el => el.disabled = false);
             
         } else {
             // User not logged in, redirect to login page

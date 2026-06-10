@@ -219,7 +219,6 @@ async function saveMood(mood, user) {
 }
 
 async function loadTodaysMood(user) {
-    if (!user) return;
     const todayStr = getTodayDateString();
     const todaysMoodEl = document.getElementById('todays-mood');
     const moodButtonsContainer = document.getElementById('mood-buttons');
@@ -227,19 +226,235 @@ async function loadTodaysMood(user) {
     if (!todaysMoodEl || !moodButtonsContainer) return;
 
     try {
-        const q = query(moodsCollection, where("uid", "==", user.uid), where("date", "==", todayStr));
+        const q = query(moodsCollection, where("date", "==", todayStr));
         const querySnapshot = await getDocs(q);
 
-        if (!querySnapshot.empty) {
-            const mood = querySnapshot.docs[0].data().mood;
-            todaysMoodEl.textContent = `오늘의 기분은 ${mood}로 저장되었어요!`;
-            moodButtonsContainer.style.display = 'none';
+        let mikaelMood = null;
+        let agathaMood = null;
+        let currentUserHasLoggedMood = false;
+
+        querySnapshot.forEach(doc => {
+            const data = doc.data();
+            const email = data.email || '';
+            const mood = data.mood;
+            
+            if (email.includes('mikael')) {
+                mikaelMood = mood;
+            } else if (email.includes('agatha')) {
+                agathaMood = mood;
+            }
+
+            if (user && data.uid === user.uid) {
+                currentUserHasLoggedMood = true;
+            }
+        });
+
+        if (user) {
+            if (currentUserHasLoggedMood) {
+                moodButtonsContainer.style.display = 'none';
+            } else {
+                moodButtonsContainer.style.display = 'flex';
+            }
         } else {
-            todaysMoodEl.textContent = '';
-            moodButtonsContainer.style.display = 'flex';
+            moodButtonsContainer.style.display = 'none';
         }
+
+        let statusHtml = `
+            <div class="couple-moods-container" style="display: flex; justify-content: center; gap: 40px; margin-top: 15px; font-family: 'Gaegu', cursive;">
+                <div class="mood-card mikael" style="text-align: center; background: #efebe9; padding: 15px 25px; border-radius: 15px; min-width: 120px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <div style="font-size: 1.1em; color: #5d4037; font-weight: bold; margin-bottom: 5px;">🧔 미카엘</div>
+                    <div style="font-size: 2em; margin: 5px 0;">${mikaelMood || '❔'}</div>
+                    <div style="font-size: 0.9em; color: #8d6e63;">${mikaelMood ? '기분 입력 완료' : '입력 대기 중'}</div>
+                </div>
+                <div class="mood-card agatha" style="text-align: center; background: #fde8e8; padding: 15px 25px; border-radius: 15px; min-width: 120px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <div style="font-size: 1.1em; color: #c2185b; font-weight: bold; margin-bottom: 5px;">👩 아가다</div>
+                    <div style="font-size: 2em; margin: 5px 0;">${agathaMood || '❔'}</div>
+                    <div style="font-size: 0.9em; color: #c2185b;">${agathaMood ? '기분 입력 완료' : '입력 대기 중'}</div>
+                </div>
+            </div>
+        `;
+
+        if (!user) {
+            statusHtml += `<p style="text-align: center; font-size: 1em; color: #e53935; margin-top: 15px;">로그인하여 오늘의 기분을 기록해보세요!</p>`;
+        }
+
+        todaysMoodEl.innerHTML = statusHtml;
     } catch (error) {
         console.error("Error loading today's mood:", error);
+    }
+}
+
+// --- BIORHYTHM UTILITY FUNCTIONS ---
+
+function getDaysElapsed(birthDateStr, targetDate) {
+    const birthDate = new Date(birthDateStr);
+    birthDate.setHours(0,0,0,0);
+    const target = new Date(targetDate);
+    target.setHours(0,0,0,0);
+    const diffTime = target.getTime() - birthDate.getTime();
+    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+}
+
+function getBiorhythmValues(t) {
+    const physical = Math.sin((2 * Math.PI * t) / 23) * 100;
+    const emotional = Math.sin((2 * Math.PI * t) / 28) * 100;
+    const intellectual = Math.sin((2 * Math.PI * t) / 33) * 100;
+    return {
+        physical: Math.round(physical),
+        emotional: Math.round(emotional),
+        intellectual: Math.round(intellectual)
+    };
+}
+
+async function getBirthDates() {
+    let mikaelBirth = "1987-04-28";
+    let agathaBirth = "1990-01-15";
+
+    try {
+        const mSnap = await getDoc(doc(db, "profiles", "mikael"));
+        if (mSnap.exists() && mSnap.data().birthDate) {
+            mikaelBirth = mSnap.data().birthDate;
+        }
+    } catch (e) {
+        console.error("Error loading mikael birthdate:", e);
+    }
+
+    try {
+        const aSnap = await getDoc(doc(db, "profiles", "agatha"));
+        if (aSnap.exists() && aSnap.data().birthDate) {
+            agathaBirth = aSnap.data().birthDate;
+        }
+    } catch (e) {
+        console.error("Error loading agatha birthdate:", e);
+    }
+
+    return { mikael: mikaelBirth, agatha: agathaBirth };
+}
+
+async function displayBiorhythms() {
+    const biorhythmContent = document.getElementById('biorhythm-content');
+    if (!biorhythmContent) return;
+    biorhythmContent.innerHTML = '<div class="loading-spinner"></div>';
+
+    try {
+        const { mikael, agatha } = await getBirthDates();
+        const today = new Date();
+        
+        const mDays = getDaysElapsed(mikael, today);
+        const aDays = getDaysElapsed(agatha, today);
+
+        const mBio = getBiorhythmValues(mDays);
+        const aBio = getBiorhythmValues(aDays);
+
+        let guideText = "";
+        if (mBio.emotional < -40 && aBio.emotional < -40) {
+            guideText = "오늘 두 분 모두 감정 지수가 낮아 사소한 일에 서운해하기 쉬운 날이에요. 서로에게 따뜻한 위로와 부드러운 말투로 배려해 주세요. 💕";
+        } else if (mBio.emotional < -40) {
+            guideText = "오늘 미카엘님의 감정 지수가 조금 낮아 예민할 수 있는 날이에요. 아가다님이 먼저 달콤한 격려와 안부를 건네주면 큰 힘이 될 거예요! 🧸";
+        } else if (aBio.emotional < -40) {
+            guideText = "오늘 아가다님의 감정 지수가 다소 저조하여 피로감을 느끼기 쉬운 날입니다. 미카엘님이 따뜻하게 안아주고 편히 쉴 수 있도록 집안일을 챙겨주세요. 🌸";
+        } else if (mBio.emotional > 40 && aBio.emotional > 40) {
+            guideText = "오늘 두 분 모두 감정 지수가 최고조입니다! 서로 바라만 봐도 행복해지는 날이니, 함께 맛있는 음식을 먹거나 아깡이와의 미래를 계획해보세요. ✨";
+        } else {
+            guideText = "오늘 부부의 바이오리듬이 고르게 안정적입니다. 일상 속 소소한 대화를 나누며 편안하고 따뜻한 하루를 보내보세요. 🍀";
+        }
+
+        if (mBio.physical < -40 || aBio.physical < -40) {
+            let lowPhysicalPerson = mBio.physical < -40 ? (aBio.physical < -40 ? "두 분 모두" : "미카엘님") : "아가다님";
+            guideText += ` <br><br>⚠️ ${lowPhysicalPerson}의 신체 지수가 낮아 피로할 수 있으니 오늘 격한 활동은 피하고 충분한 휴식을 권장해요.`;
+        }
+
+        if (mBio.intellectual > 50 && aBio.intellectual > 50) {
+            guideText += ` <br><br>💡 두 분 다 지성 지수가 높은 날입니다. 아깡이 출산 준비물 체크리스트를 만들거나 육아 계획을 세우는 이성적인 논의를 하기에 좋은 시기예요!`;
+        }
+
+        const getStatusColor = (val) => {
+            if (val > 40) return '#4caf50';
+            if (val < -40) return '#e53935';
+            return '#ffb300';
+        };
+
+        const getPercentage = (val) => {
+            return Math.min(Math.max(((val + 100) / 2), 0), 100);
+        };
+
+        biorhythmContent.innerHTML = `
+            <div class="biorhythm-comparison" style="display: flex; flex-direction: column; gap: 20px; font-family: 'Gaegu', cursive;">
+                <div class="bio-person-card" style="background: #efebe9; padding: 18px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <h3 style="margin-top: 0; color: #5d4037; font-size: 1.3em; margin-bottom: 12px;">🧔 미카엘의 상태</h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: #5d4037; margin-bottom: 3px;">
+                                <span>🔋 신체 (${mBio.physical}%)</span>
+                                <span style="font-weight: bold; color: ${getStatusColor(mBio.physical)}">${mBio.physical > 40 ? '최상' : (mBio.physical < -40 ? '저조' : '보통')}</span>
+                            </div>
+                            <div style="width: 100%; height: 12px; background: #e0dcd9; border-radius: 6px; overflow: hidden;">
+                                <div style="width: ${getPercentage(mBio.physical)}%; height: 100%; background: ${getStatusColor(mBio.physical)}; border-radius: 6px; transition: width 0.5s ease-in-out;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: #5d4037; margin-bottom: 3px;">
+                                <span>❤️ 감정 (${mBio.emotional}%)</span>
+                                <span style="font-weight: bold; color: ${getStatusColor(mBio.emotional)}">${mBio.emotional > 40 ? '안정' : (mBio.emotional < -40 ? '예민' : '보통')}</span>
+                            </div>
+                            <div style="width: 100%; height: 12px; background: #e0dcd9; border-radius: 6px; overflow: hidden;">
+                                <div style="width: ${getPercentage(mBio.emotional)}%; height: 100%; background: ${getStatusColor(mBio.emotional)}; border-radius: 6px; transition: width 0.5s ease-in-out;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: #5d4037; margin-bottom: 3px;">
+                                <span>🧠 지성 (${mBio.intellectual}%)</span>
+                                <span style="font-weight: bold; color: ${getStatusColor(mBio.intellectual)}">${mBio.intellectual > 40 ? '명석' : (mBio.intellectual < -40 ? '둔조' : '보통')}</span>
+                            </div>
+                            <div style="width: 100%; height: 12px; background: #e0dcd9; border-radius: 6px; overflow: hidden;">
+                                <div style="width: ${getPercentage(mBio.intellectual)}%; height: 100%; background: ${getStatusColor(mBio.intellectual)}; border-radius: 6px; transition: width 0.5s ease-in-out;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bio-person-card" style="background: #fde8e8; padding: 18px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <h3 style="margin-top: 0; color: #c2185b; font-size: 1.3em; margin-bottom: 12px;">👩 아가다의 상태</h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: #c2185b; margin-bottom: 3px;">
+                                <span>🔋 신체 (${aBio.physical}%)</span>
+                                <span style="font-weight: bold; color: ${getStatusColor(aBio.physical)}">${aBio.physical > 40 ? '최상' : (aBio.physical < -40 ? '저조' : '보통')}</span>
+                            </div>
+                            <div style="width: 100%; height: 12px; background: #f5d4d4; border-radius: 6px; overflow: hidden;">
+                                <div style="width: ${getPercentage(aBio.physical)}%; height: 100%; background: ${getStatusColor(aBio.physical)}; border-radius: 6px; transition: width 0.5s ease-in-out;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: #c2185b; margin-bottom: 3px;">
+                                <span>❤️ 감정 (${aBio.emotional}%)</span>
+                                <span style="font-weight: bold; color: ${getStatusColor(aBio.emotional)}">${aBio.emotional > 40 ? '안정' : (aBio.emotional < -40 ? '예민' : '보통')}</span>
+                            </div>
+                            <div style="width: 100%; height: 12px; background: #f5d4d4; border-radius: 6px; overflow: hidden;">
+                                <div style="width: ${getPercentage(aBio.emotional)}%; height: 100%; background: ${getStatusColor(aBio.emotional)}; border-radius: 6px; transition: width 0.5s ease-in-out;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: #c2185b; margin-bottom: 3px;">
+                                <span>🧠 지성 (${aBio.intellectual}%)</span>
+                                <span style="font-weight: bold; color: ${getStatusColor(aBio.intellectual)}">${aBio.intellectual > 40 ? '명석' : (aBio.intellectual < -40 ? '둔조' : '보통')}</span>
+                            </div>
+                            <div style="width: 100%; height: 12px; background: #f5d4d4; border-radius: 6px; overflow: hidden;">
+                                <div style="width: ${getPercentage(aBio.intellectual)}%; height: 100%; background: ${getStatusColor(aBio.intellectual)}; border-radius: 6px; transition: width 0.5s ease-in-out;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bio-guide-box" style="background: #fff8e1; border-left: 5px solid #ffb300; padding: 15px; border-radius: 8px; font-size: 1.05em; line-height: 1.5; color: #5d4037;">
+                    <strong style="font-size: 1.1em; display: block; margin-bottom: 8px;">💌 오늘의 부부 케어 가이드</strong>
+                    <div>${guideText}</div>
+                </div>
+            </div>
+        `;
+    } catch (e) {
+        console.error("Error displaying biorhythms:", e);
+        biorhythmContent.innerHTML = '<p>바이오리듬 정보를 계산하는 데 실패했습니다.</p>';
     }
 }
 
@@ -414,7 +629,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 displayWeeklyInfo(user, pregnancyData),
                 renderMainCalendar(),
                 displayLatestEntries(),
-                loadTodaysMood(user)
+                loadTodaysMood(user),
+                displayBiorhythms()
             ]);
             document.querySelectorAll('.mood-button').forEach(button => {
                 button.addEventListener('click', () => saveMood(button.dataset.mood, user));
@@ -439,10 +655,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 getDueDate(null).then(d => document.getElementById('dday-counter').textContent = calculateDDay(d)),
                 displayWeeklyInfo(null, pregnancyData),
                 renderMainCalendar(),
-                displayLatestEntries()
+                displayLatestEntries(),
+                loadTodaysMood(null),
+                displayBiorhythms()
             ]);
-            const todaysMoodEl = document.getElementById('todays-mood');
-            if(todaysMoodEl) todaysMoodEl.textContent = '로그인하여 오늘의 기분을 기록해보세요!';
             document.querySelectorAll('.mood-button').forEach(b => b.disabled = true);
 
         } else if (isDiaryPage) {

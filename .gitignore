@@ -1,5 +1,14 @@
 # Firebase config
 firebase-config.js
 firebase-debug.log
-firebase-debug.log
-firebase-debug.log
+
+# Wrangler / Cloudflare
+.wrangler/
+.wrangler
+
+# IDEs
+.idx/
+.vscode/
+
+# Dependencies
+node_modules/

@@ -560,3 +560,24 @@ header a:hover {
     flex-direction: column;
   }
 }
+
+/* Biorhythm & Mood Tracker Custom Styles */
+.mood-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.mood-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1) !important;
+}
+
+.bio-person-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.bio-person-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1) !important;
+}
+
+.bio-guide-box {
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
