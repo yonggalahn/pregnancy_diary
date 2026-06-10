@@ -17,7 +17,7 @@ async function displayLetters() {
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
-            lettersList.innerHTML = '<p>아직 따수니에게 도착한 편지가 없습니다. 일기 페이지에서 편지를 작성해보세요!</p>';
+            lettersList.innerHTML = '<p>아직 아깡이에게 도착한 편지가 없습니다. 일기 페이지에서 편지를 작성해보세요!</p>';
             return;
         }
 
@@ -47,7 +47,7 @@ async function displayLetters() {
 
 // Initialize letter display on page load
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.pathname.includes('ttasuni_letterbox.html')) {
+    if (window.location.pathname.includes('akang_letterbox')) {
         displayLetters();
     }
 });

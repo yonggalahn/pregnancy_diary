@@ -36,7 +36,7 @@ function renderEntries(entries) {
 
         const personName = entry.person === 'mikael' ? '미카엘' : '아가다';
         const title = entry.type === 'letter' 
-            ? `💌 ${entry.date} (따수니에게)` 
+            ? `💌 ${entry.date} (아깡이에게)` 
             : `📝 ${entry.date} 일기`;
 
         // Sanitize text to prevent HTML injection if necessary

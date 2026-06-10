@@ -240,7 +240,7 @@ async function setupDiaryPage() {
 
     const diaryText = document.getElementById('diary-text');
     document.getElementById('type-diary').addEventListener('change', () => diaryText.placeholder = '오늘의 이야기를 기록해보세요...');
-    document.getElementById('type-letter').addEventListener('change', () => diaryText.placeholder = '따수니에게 보내는 사랑의 메시지를 작성해주세요...');
+    document.getElementById('type-letter').addEventListener('change', () => diaryText.placeholder = '아깡이에게 보내는 사랑의 메시지를 작성해주세요...');
 
     const fp = flatpickr("#calendar-container", {
         inline: true,
