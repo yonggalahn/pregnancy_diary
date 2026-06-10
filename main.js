@@ -19,7 +19,10 @@ async function getPregnancyData() {
 
 function getTodayDateString() {
     const today = new Date();
-    return today.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
 
 async function getDueDate(user) {
@@ -108,7 +111,10 @@ async function renderMainCalendar() {
             inline: true,
             enable: diaryDates,
             onDayCreate: (dObj, dStr, fp, dayElem) => {
-                const date = dayElem.dateObj.toISOString().split('T')[0];
+                const year = dayElem.dateObj.getFullYear();
+                const month = String(dayElem.dateObj.getMonth() + 1).padStart(2, '0');
+                const day = String(dayElem.dateObj.getDate()).padStart(2, '0');
+                const date = `${year}-${month}-${day}`;
                 if (diaryDates.includes(date)) {
                     dayElem.classList.add('has-diary-entry');
                     dayElem.innerHTML += '<span class="entry-indicator">❤️</span>';
@@ -368,9 +374,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     monitorAuthState(
       async (user) => {
-        document.getElementById('profile-button-header').style.display = 'block';
-        document.getElementById('logout-button-header').style.display = 'block';
-        document.getElementById('login-button-header').style.display = 'none';
+        const profileBtn = document.getElementById('profile-button-header');
+        const logoutBtn = document.getElementById('logout-button-header');
+        const loginBtn = document.getElementById('login-button-header');
+        if (profileBtn) profileBtn.style.display = 'block';
+        if (logoutBtn) logoutBtn.style.display = 'block';
+        if (loginBtn) loginBtn.style.display = 'none';
 
         if (isMainPage && pregnancyData) {
             await Promise.all([
@@ -391,9 +400,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       },
       async () => {
-        document.getElementById('profile-button-header').style.display = 'none';
-        document.getElementById('logout-button-header').style.display = 'none';
-        document.getElementById('login-button-header').style.display = 'block';
+        const profileBtn = document.getElementById('profile-button-header');
+        const logoutBtn = document.getElementById('logout-button-header');
+        const loginBtn = document.getElementById('login-button-header');
+        if (profileBtn) profileBtn.style.display = 'none';
+        if (logoutBtn) logoutBtn.style.display = 'none';
+        if (loginBtn) loginBtn.style.display = 'block';
 
         if (isMainPage && pregnancyData) {
             await Promise.all([
