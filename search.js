@@ -12,9 +12,24 @@ async function fetchAndCacheDiaries() {
     if (allDiariesCache.length > 0) return true;
     searchInfo.innerHTML = '<div class="loading-spinner"></div>';
     try {
-        const q = query(collection(db, "diaries"), orderBy("date", "desc"));
+        const q = query(collection(db, "diaries"));
         const querySnapshot = await getDocs(q);
-        allDiariesCache = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        allDiariesCache = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            const id = doc.id;
+            const parts = id.split('-');
+            const inferredPerson = parts[0] || 'mikael';
+            const inferredDate = parts.slice(1).join('-') || '2026-01-01';
+            return {
+                id: id,
+                text: data.text || '',
+                person: data.person || inferredPerson,
+                date: data.date || inferredDate,
+                type: data.type || 'diary',
+                image: data.image || ''
+            };
+        });
+        allDiariesCache.sort((a, b) => b.date.localeCompare(a.date));
         searchInfo.textContent = '일기 로딩 완료! 검색어를 입력해주세요.';
         return true;
     } catch (error) {

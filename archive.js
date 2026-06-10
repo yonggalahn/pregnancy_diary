@@ -10,9 +10,24 @@ async function fetchAllDiaries() {
     }
     contentContainer.innerHTML = '<div class="loading-spinner"></div>';
     try {
-        const q = query(collection(db, "diaries"), orderBy("date", "desc"));
+        const q = query(collection(db, "diaries"));
         const querySnapshot = await getDocs(q);
-        allDiariesCache = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        allDiariesCache = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            const id = doc.id;
+            const parts = id.split('-');
+            const inferredPerson = parts[0] || 'mikael';
+            const inferredDate = parts.slice(1).join('-') || '2026-01-01';
+            return {
+                id: id,
+                text: data.text || '',
+                person: data.person || inferredPerson,
+                date: data.date || inferredDate,
+                type: data.type || 'diary',
+                image: data.image || ''
+            };
+        });
+        allDiariesCache.sort((a, b) => b.date.localeCompare(a.date));
         return allDiariesCache;
     } catch (error) {
         console.error("Error fetching diaries:", error);
@@ -23,7 +38,7 @@ async function fetchAllDiaries() {
 
 function renderEntries(entries) {
     contentContainer.innerHTML = ''; 
-    const filteredEntries = entries.filter(entry => entry.type === 'diary' || entry.type === 'letter');
+    const filteredEntries = entries.filter(entry => entry.text);
 
     if (filteredEntries.length === 0) {
         contentContainer.innerHTML = '<p>아직 작성된 일기가 없습니다.</p>';

@@ -104,7 +104,13 @@ async function renderMainCalendar() {
     try {
         const q = query(collection(db, "diaries"));
         const querySnapshot = await getDocs(q);
-        const diaryDates = querySnapshot.docs.map(doc => doc.data().date);
+        const diaryDates = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            const id = doc.id;
+            const parts = id.split('-');
+            const inferredDate = parts.slice(1).join('-') || '2026-01-01';
+            return data.date || inferredDate;
+        });
         
         mainCalendarContainer.innerHTML = '';
         flatpickr(mainCalendarContainer, {
@@ -134,17 +140,29 @@ async function displayLatestEntries() {
         if (!latestEntryContainer) continue;
         latestEntryContainer.innerHTML = '<div class="loading-spinner"></div>';
 
-        const q = query(
-            collection(db, "diaries"),
-            where('person', '==', person)
-        );
+        const q = query(collection(db, "diaries"));
 
         try {
             const querySnapshot = await getDocs(q);
-            if (!querySnapshot.empty) {
-                const sortedDocs = querySnapshot.docs.sort((a, b) => b.data().date.localeCompare(a.data().date));
-                const latestDoc = sortedDocs[0];
-                const entry = latestDoc.data();
+            const entries = querySnapshot.docs.map(doc => {
+                const data = doc.data();
+                const id = doc.id;
+                const parts = id.split('-');
+                const inferredPerson = parts[0] || 'mikael';
+                const inferredDate = parts.slice(1).join('-') || '2026-01-01';
+                return {
+                    id: id,
+                    text: data.text || '',
+                    person: data.person || inferredPerson,
+                    date: data.date || inferredDate,
+                    type: data.type || 'diary',
+                    image: data.image || ''
+                };
+            }).filter(entry => entry.person === person);
+
+            if (entries.length > 0) {
+                entries.sort((a, b) => b.date.localeCompare(a.date));
+                const entry = entries[0];
                 const snippet = entry.text.substring(0, 100) + (entry.text.length > 100 ? '...' : '');
 
                 latestEntryContainer.innerHTML = `
@@ -269,11 +287,23 @@ async function loadDiaryEntry(person, date) {
     const diaryImage = document.getElementById('diary-image');
 
     try {
-        const q = query(collection(db, "diaries"), where("person", "==", person), where("date", "==", date));
+        const q = query(collection(db, "diaries"));
         const querySnapshot = await getDocs(q);
         
-        if (!querySnapshot.empty) {
-            const docSnap = querySnapshot.docs[0];
+        const docSnap = querySnapshot.docs.find(doc => {
+            const data = doc.data();
+            const id = doc.id;
+            const parts = id.split('-');
+            const inferredPerson = parts[0] || 'mikael';
+            const inferredDate = parts.slice(1).join('-') || '2026-01-01';
+            
+            const resolvedPerson = data.person || inferredPerson;
+            const resolvedDate = data.date || inferredDate;
+            
+            return resolvedPerson === person && resolvedDate === date;
+        });
+        
+        if (docSnap) {
             const entry = docSnap.data();
             diaryText.value = entry.text || '';
             diaryImage.src = entry.image || '';

@@ -27,25 +27,39 @@ async function displayGallery() {
     galleryGrid.innerHTML = '<div class="loading-spinner"></div>';
 
     try {
-        // Query all documents ordered by date to avoid requiring a composite index
-        const q = query(
-            collection(db, "diaries"), 
-            orderBy("date", "desc")
-        );
+        const q = query(collection(db, "diaries"));
         const querySnapshot = await getDocs(q);
 
         galleryGrid.innerHTML = ''; // Clear spinner
 
+        const entries = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            const id = doc.id;
+            const parts = id.split('-');
+            const inferredPerson = parts[0] || 'mikael';
+            const inferredDate = parts.slice(1).join('-') || '2026-01-01';
+            return {
+                id: id,
+                text: data.text || '',
+                person: data.person || inferredPerson,
+                date: data.date || inferredDate,
+                type: data.type || 'diary',
+                image: data.image || ''
+            };
+        });
+
         // Filter documents that have a non-empty image field
-        const documentsWithImages = querySnapshot.docs.filter(doc => doc.data().image && doc.data().image !== "");
+        const documentsWithImages = entries.filter(entry => entry.image && entry.image !== "");
 
         if (documentsWithImages.length === 0) {
             galleryGrid.innerHTML = '<p>아직 갤러리에 사진이 없습니다. 일기에 사진을 추가해보세요!</p>';
             return;
         }
 
-        documentsWithImages.forEach(doc => {
-            const entry = doc.data();
+        // Sort client-side by date desc
+        documentsWithImages.sort((a, b) => b.date.localeCompare(a.date));
+
+        documentsWithImages.forEach(entry => {
             const galleryItem = document.createElement('div');
             galleryItem.className = 'gallery-item';
             
