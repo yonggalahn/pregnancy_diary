@@ -125,6 +125,7 @@ main {
   height: 140px;
   border-radius: 50%;
   object-fit: cover;
+  object-position: center top;
   border: 4px solid var(--card-bg);
   box-shadow: var(--shadow-md);
   transition: var(--transition);
