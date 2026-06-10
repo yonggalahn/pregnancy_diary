@@ -11,8 +11,7 @@ async function displayLetters() {
         // Query the main 'diaries' collection for documents of type 'letter'
         const q = query(
             collection(db, "diaries"), 
-            where("type", "==", "letter"), 
-            orderBy("date", "desc")
+            where("type", "==", "letter")
         );
         const querySnapshot = await getDocs(q);
 
@@ -23,7 +22,8 @@ async function displayLetters() {
 
         lettersList.innerHTML = ''; // Clear loading message
 
-        querySnapshot.forEach((doc) => {
+        const sortedDocs = querySnapshot.docs.sort((a, b) => b.data().date.localeCompare(a.data().date));
+        sortedDocs.forEach((doc) => {
             const letter = doc.data();
             const personName = letter.person === 'mikael' ? '미카엘' : '아가다';
             const letterCard = document.createElement('div');

@@ -27,23 +27,24 @@ async function displayGallery() {
     galleryGrid.innerHTML = '<div class="loading-spinner"></div>';
 
     try {
-        // Query only documents that have a non-empty image field
+        // Query all documents ordered by date to avoid requiring a composite index
         const q = query(
             collection(db, "diaries"), 
-            where("image", "!=", ""), 
-            orderBy("image"), // Order by image might not be meaningful, perhaps order by date?
             orderBy("date", "desc")
         );
         const querySnapshot = await getDocs(q);
 
         galleryGrid.innerHTML = ''; // Clear spinner
 
-        if (querySnapshot.empty) {
+        // Filter documents that have a non-empty image field
+        const documentsWithImages = querySnapshot.docs.filter(doc => doc.data().image && doc.data().image !== "");
+
+        if (documentsWithImages.length === 0) {
             galleryGrid.innerHTML = '<p>아직 갤러리에 사진이 없습니다. 일기에 사진을 추가해보세요!</p>';
             return;
         }
 
-        querySnapshot.docs.forEach(doc => {
+        documentsWithImages.forEach(doc => {
             const entry = doc.data();
             const galleryItem = document.createElement('div');
             galleryItem.className = 'gallery-item';

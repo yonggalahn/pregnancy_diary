@@ -136,15 +136,14 @@ async function displayLatestEntries() {
 
         const q = query(
             collection(db, "diaries"),
-            where('person', '==', person),
-            orderBy("date", "desc"),
-            limit(1)
+            where('person', '==', person)
         );
 
         try {
             const querySnapshot = await getDocs(q);
             if (!querySnapshot.empty) {
-                const latestDoc = querySnapshot.docs[0];
+                const sortedDocs = querySnapshot.docs.sort((a, b) => b.data().date.localeCompare(a.data().date));
+                const latestDoc = sortedDocs[0];
                 const entry = latestDoc.data();
                 const snippet = entry.text.substring(0, 100) + (entry.text.length > 100 ? '...' : '');
 
