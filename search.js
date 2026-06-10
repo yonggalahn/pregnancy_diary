@@ -32,21 +32,22 @@ function highlight(text, term) {
 
 function performSearch() {
     const searchTerm = searchInput.value.trim().toLowerCase();
-    if (!searchTerm) {
-        searchResultsContainer.innerHTML = '<p>검색어를 입력해주세요.</p>';
-        searchInfo.textContent = '';
-        return;
-    }
+    
+    const results = searchTerm 
+        ? allDiariesCache.filter(diary => 
+            (diary.text && diary.text.toLowerCase().includes(searchTerm)) ||
+            (diary.date && diary.date.includes(searchTerm))
+          )
+        : allDiariesCache;
 
-    const results = allDiariesCache.filter(diary => 
-        (diary.text && diary.text.toLowerCase().includes(searchTerm)) ||
-        (diary.date && diary.date.includes(searchTerm))
-    );
-
-    searchInfo.textContent = `총 ${results.length}개의 검색 결과가 있습니다.`;
+    searchInfo.textContent = searchTerm 
+        ? `총 ${results.length}개의 검색 결과가 있습니다.`
+        : `총 ${results.length}개의 일기가 있습니다.`;
 
     if (results.length === 0) {
-        searchResultsContainer.innerHTML = `<p>"${searchInput.value}"에 대한 검색 결과가 없습니다.</p>`;
+        searchResultsContainer.innerHTML = searchTerm 
+            ? `<p>"${searchInput.value}"에 대한 검색 결과가 없습니다.</p>`
+            : `<p>아직 작성된 일기가 없습니다.</p>`;
         return;
     }
 

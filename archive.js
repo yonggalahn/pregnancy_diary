@@ -39,13 +39,15 @@ function renderEntries(entries) {
             ? `💌 ${entry.date} (아깡이에게)` 
             : `📝 ${entry.date} 일기`;
 
-        // Sanitize text to prevent HTML injection if necessary
-        const textSnippet = entry.text.substring(0, 200) + (entry.text.length > 200 ? '...' : '');
+        const imageHtml = entry.image 
+            ? `<img src="${entry.image}" alt="Diary Image" class="archive-entry-image" style="max-width: 100%; border-radius: 10px; margin-bottom: 15px; display: block;">` 
+            : '';
 
         card.innerHTML = `
             <h3>${title}</h3>
             <p class="author-tag">작성자: ${personName}</p>
-            <p class="diary-text">${textSnippet.replace(/\n/g, '<br>')}</p>
+            ${imageHtml}
+            <p class="diary-text">${entry.text.replace(/\n/g, '<br>')}</p>
             <a href="diary.html?person=${entry.person}&date=${entry.date}" class="view-button">내용 보기/수정</a>
         `;
         contentContainer.appendChild(card);

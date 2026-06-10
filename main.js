@@ -244,8 +244,7 @@ async function setupDiaryPage() {
     }
 
     const diaryText = document.getElementById('diary-text');
-    document.getElementById('type-diary').addEventListener('change', () => diaryText.placeholder = '오늘의 이야기를 기록해보세요...');
-    document.getElementById('type-letter').addEventListener('change', () => diaryText.placeholder = '아깡이에게 보내는 사랑의 메시지를 작성해주세요...');
+    if (diaryText) diaryText.placeholder = '오늘의 이야기를 기록해보세요...';
 
     const fp = flatpickr("#calendar-container", {
         inline: true,
@@ -277,13 +276,11 @@ async function loadDiaryEntry(person, date) {
             const docSnap = querySnapshot.docs[0];
             const entry = docSnap.data();
             diaryText.value = entry.text || '';
-            document.getElementById(entry.type === 'letter' ? 'type-letter' : 'type-diary').checked = true;
             diaryImage.src = entry.image || '';
             diaryImage.style.display = entry.image ? 'block' : 'none';
             document.getElementById('save-button').dataset.docId = docSnap.id;
         } else {
             diaryText.value = '';
-            document.getElementById('type-diary').checked = true;
             diaryImage.src = '';
             diaryImage.style.display = 'none';
             delete document.getElementById('save-button').dataset.docId;
@@ -300,7 +297,7 @@ async function saveDiaryEntry(person, date) {
     const docId = saveButton.dataset.docId;
     const file = document.getElementById('image-input').files[0];
     const text = document.getElementById('diary-text').value;
-    const type = document.querySelector('input[name="entry-type"]:checked').value;
+    const type = 'diary';
 
     const showSaveFeedback = () => {
         const originalText = saveButton.textContent;
