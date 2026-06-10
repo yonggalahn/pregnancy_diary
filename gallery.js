@@ -72,7 +72,7 @@ async function displayGallery() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.pathname.includes('gallery.html')) {
+    if (window.location.pathname.includes('gallery')) {
         displayGallery();
     }
 });

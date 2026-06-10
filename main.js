@@ -366,8 +366,8 @@ async function saveDiaryEntry(person, date) {
 // --- APP INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', async () => {
     const pagePath = window.location.pathname;
-    const isMainPage = pagePath.includes('index.html') || pagePath === '/' ||  pagePath === '/pregnancy-diary/';
-    const isDiaryPage = pagePath.includes('diary.html');
+    const isMainPage = pagePath.includes('index') || pagePath === '/' ||  pagePath === '/pregnancy-diary/';
+    const isDiaryPage = pagePath.includes('diary');
 
     const pregnancyData = await getPregnancyData();
 
@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 Object.assign(prompt.style, { textAlign: 'center', marginTop: '20px', color: '#c62828' });
                 diaryEntry.appendChild(prompt);
             }
-        } else if (window.location.pathname.includes('profile.html')) {
+        } else if (window.location.pathname.includes('profile')) {
              window.location.href = 'login.html';
         }
       }

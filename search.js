@@ -70,7 +70,7 @@ function performSearch() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.pathname.includes('search.html')) {
+    if (window.location.pathname.includes('search')) {
         fetchAndCacheDiaries();
 
         searchButton.addEventListener('click', performSearch);

@@ -59,7 +59,7 @@ async function initArchive() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.pathname.includes('archive.html')) {
+    if (window.location.pathname.includes('archive')) {
         initArchive().catch(error => {
             console.error("Archive initialization failed:", error);
             contentContainer.innerHTML = '<p class="error-message">페이지 초기화 중 오류가 발생했습니다.</p>';
