@@ -1,5 +1,4 @@
 import { doc, getDoc, setDoc, collection, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-import { monitorAuthState, logout } from './auth.js';
 import { db } from './firebase.js';
 
 // --- UTILITY FUNCTIONS ---
@@ -25,28 +24,15 @@ function getTodayDateString() {
     return `${year}-${month}-${day}`;
 }
 
-async function getDueDate(user) {
-    let dueDate = "2026-10-03";
-    if (user) {
-        const person = user.email.includes('mikael') ? 'mikael' : 'agatha';
-        const docRef = doc(db, "profiles", person);
-        try {
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists() && docSnap.data().dueDate) {
-                dueDate = docSnap.data().dueDate;
-            }
-        } catch (error) {
-            console.error("Error fetching due date:", error);
-        }
-    }
-    return dueDate;
+async function getDueDate() {
+    return "2026-10-03";
 }
 
 function setDiaryPageEditability(canEdit) {
     const controls = ['diary-text', 'image-input', 'type-diary', 'type-letter', 'save-button'];
     controls.forEach(id => {
         const element = document.getElementById(id);
-        if (element) element.disabled = !canEdit;
+        if (element) element.disabled = false; // Always enabled without authentication
     });
 }
 
@@ -73,12 +59,12 @@ function calculatePregnancyWeek(dueDateStr) {
   return { week, day };
 }
 
-async function displayWeeklyInfo(user, data) {
+async function displayWeeklyInfo(data) {
     const weeklyInfoContent = document.getElementById('weekly-info-content');
     if (!weeklyInfoContent) return;
     weeklyInfoContent.innerHTML = '<div class="loading-spinner"></div>';
 
-    const dueDate = await getDueDate(user);
+    const dueDate = await getDueDate();
     const { week, day } = calculatePregnancyWeek(dueDate);
 
     try {
@@ -185,40 +171,31 @@ async function displayLatestEntries() {
 }
 
 async function loadProfilePictures() {
-    const persons = ['mikael', 'agatha'];
-    for (const person of persons) {
-        const imgElement = document.getElementById(`${person}-pic`);
-        if (imgElement) {
-            const docRef = doc(db, "profiles", person);
-            try {
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists() && docSnap.data().profilePicUrl) {
-                    imgElement.src = docSnap.data().profilePicUrl;
-                }
-            } catch(error) {
-                console.error(`Error loading profile picture for ${person}:`, error);
-            }
-        }
-    }
+    const mikaelPic = document.getElementById('mikael-pic');
+    const agathaPic = document.getElementById('agatha-pic');
+    if (mikaelPic) mikaelPic.src = 'image/michael.jpg';
+    if (agathaPic) agathaPic.src = 'image/agatha.jpg';
 }
 
 // --- MOOD TRACKER FUNCTIONS ---
 const moodsCollection = collection(db, "moods");
 
-async function saveMood(mood, user) {
-    if (!user) return;
+async function saveMood(mood) {
+    const selector = document.querySelector('input[name="mood-user"]:checked');
+    const person = selector ? selector.value : 'mikael';
     const todayStr = getTodayDateString();
-    const docId = `${user.uid}-${todayStr}`;
+    const docId = `${person}-${todayStr}`;
+    const email = person === 'mikael' ? 'mikael@pregnancy.diary' : 'agatha@pregnancy.diary';
     
     try {
-        await setDoc(doc(moodsCollection, docId), { uid: user.uid, email: user.email, mood, date: todayStr });
-        loadTodaysMood(user);
+        await setDoc(doc(moodsCollection, docId), { person, email, mood, date: todayStr }, { merge: true });
+        loadTodaysMood();
     } catch (error) {
         console.error("Error saving mood:", error);
     }
 }
 
-async function loadTodaysMood(user) {
+async function loadTodaysMood() {
     const todayStr = getTodayDateString();
     const todaysMoodEl = document.getElementById('todays-mood');
     const moodButtonsContainer = document.getElementById('mood-buttons');
@@ -231,7 +208,6 @@ async function loadTodaysMood(user) {
 
         let mikaelMood = null;
         let agathaMood = null;
-        let currentUserHasLoggedMood = false;
 
         querySnapshot.forEach(doc => {
             const data = doc.data();
@@ -243,21 +219,10 @@ async function loadTodaysMood(user) {
             } else if (email.includes('agatha')) {
                 agathaMood = mood;
             }
-
-            if (user && data.uid === user.uid) {
-                currentUserHasLoggedMood = true;
-            }
         });
 
-        if (user) {
-            if (currentUserHasLoggedMood) {
-                moodButtonsContainer.style.display = 'none';
-            } else {
-                moodButtonsContainer.style.display = 'flex';
-            }
-        } else {
-            moodButtonsContainer.style.display = 'none';
-        }
+        // Always display mood buttons without authentication check
+        moodButtonsContainer.style.display = 'flex';
 
         let statusHtml = `
             <div class="couple-moods-container" style="display: flex; justify-content: center; gap: 40px; margin-top: 15px; font-family: 'Gaegu', cursive;">
@@ -273,10 +238,6 @@ async function loadTodaysMood(user) {
                 </div>
             </div>
         `;
-
-        if (!user) {
-            statusHtml += `<p style="text-align: center; font-size: 1em; color: #e53935; margin-top: 15px;">로그인하여 오늘의 기분을 기록해보세요!</p>`;
-        }
 
         todaysMoodEl.innerHTML = statusHtml;
     } catch (error) {
@@ -307,28 +268,7 @@ function getBiorhythmValues(t) {
 }
 
 async function getBirthDates() {
-    let mikaelBirth = "1987-04-28";
-    let agathaBirth = "1990-01-15";
-
-    try {
-        const mSnap = await getDoc(doc(db, "profiles", "mikael"));
-        if (mSnap.exists() && mSnap.data().birthDate) {
-            mikaelBirth = mSnap.data().birthDate;
-        }
-    } catch (e) {
-        console.error("Error loading mikael birthdate:", e);
-    }
-
-    try {
-        const aSnap = await getDoc(doc(db, "profiles", "agatha"));
-        if (aSnap.exists() && aSnap.data().birthDate) {
-            agathaBirth = aSnap.data().birthDate;
-        }
-    } catch (e) {
-        console.error("Error loading agatha birthdate:", e);
-    }
-
-    return { mikael: mikaelBirth, agatha: agathaBirth };
+    return { mikael: "1987-04-28", agatha: "1990-01-15" };
 }
 
 async function displayBiorhythms() {
@@ -538,6 +478,12 @@ async function loadDiaryEntry(person, date) {
 }
 
 async function saveDiaryEntry(person, date) {
+    const password = prompt("일기를 저장하시려면 부부 공동 비밀번호를 입력해주세요:");
+    if (password !== "1003") {
+        alert("비밀번호가 올바르지 않아 일기를 저장할 수 없습니다.");
+        return;
+    }
+
     const saveButton = document.getElementById('save-button');
     const docId = saveButton.dataset.docId;
     const file = document.getElementById('image-input').files[0];
@@ -613,80 +559,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const pregnancyData = await getPregnancyData();
 
-    monitorAuthState(
-      async (user) => {
-        const profileBtn = document.getElementById('profile-button-header');
-        const logoutBtn = document.getElementById('logout-button-header');
-        const loginBtn = document.getElementById('login-button-header');
-        if (profileBtn) profileBtn.style.display = 'block';
-        if (logoutBtn) logoutBtn.style.display = 'block';
-        if (loginBtn) loginBtn.style.display = 'none';
-
-        if (isMainPage && pregnancyData) {
-            await Promise.all([
-                loadProfilePictures(),
-                getDueDate(user).then(d => document.getElementById('dday-counter').textContent = calculateDDay(d)),
-                displayWeeklyInfo(user, pregnancyData),
-                renderMainCalendar(),
-                displayLatestEntries(),
-                loadTodaysMood(user),
-                displayBiorhythms()
-            ]);
-            document.querySelectorAll('.mood-button').forEach(button => {
-                button.addEventListener('click', () => saveMood(button.dataset.mood, user));
-                button.disabled = false;
-            });
-        } else if (isDiaryPage) {
-            setupDiaryPage();
-            setDiaryPageEditability(true);
-        }
-      },
-      async () => {
-        const profileBtn = document.getElementById('profile-button-header');
-        const logoutBtn = document.getElementById('logout-button-header');
-        const loginBtn = document.getElementById('login-button-header');
-        if (profileBtn) profileBtn.style.display = 'none';
-        if (logoutBtn) logoutBtn.style.display = 'none';
-        if (loginBtn) loginBtn.style.display = 'block';
-
-        if (isMainPage && pregnancyData) {
-            await Promise.all([
-                loadProfilePictures(),
-                getDueDate(null).then(d => document.getElementById('dday-counter').textContent = calculateDDay(d)),
-                displayWeeklyInfo(null, pregnancyData),
-                renderMainCalendar(),
-                displayLatestEntries(),
-                loadTodaysMood(null),
-                displayBiorhythms()
-            ]);
-            document.querySelectorAll('.mood-button').forEach(b => b.disabled = true);
-
-        } else if (isDiaryPage) {
-            setupDiaryPage();
-            setDiaryPageEditability(false);
-            const diaryEntry = document.getElementById('diary-entry');
-            if (diaryEntry && !diaryEntry.querySelector('#login-prompt')) {
-                const prompt = document.createElement('p');
-                prompt.id = 'login-prompt';
-                prompt.textContent = '일기를 작성하려면 로그인해주세요.';
-                Object.assign(prompt.style, { textAlign: 'center', marginTop: '20px', color: '#c62828' });
-                diaryEntry.appendChild(prompt);
-            }
-        } else if (window.location.pathname.includes('profile')) {
-             window.location.href = 'login.html';
-        }
-      }
-    );
-
-    const logoutButton = document.getElementById('logout-button-header');
-    if(logoutButton) {
-        logoutButton.addEventListener('click', async () => {
-            try {
-                await logout();
-                window.location.href = 'index.html';
-            } catch (error) {
-                console.error('Logout failed:', error);
-            }
+    if (isMainPage && pregnancyData) {
+        await Promise.all([
+            loadProfilePictures(),
+            getDueDate().then(d => document.getElementById('dday-counter').textContent = calculateDDay(d)),
+            displayWeeklyInfo(pregnancyData),
+            renderMainCalendar(),
+            displayLatestEntries(),
+            loadTodaysMood(),
+            displayBiorhythms()
+        ]);
+        document.querySelectorAll('.mood-button').forEach(button => {
+            button.addEventListener('click', () => saveMood(button.dataset.mood));
+            button.disabled = false;
         });
+    } else if (isDiaryPage) {
+        setupDiaryPage();
+        setDiaryPageEditability(true);
     }
 });

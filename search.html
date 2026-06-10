@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
     <link href='/style.css' rel='stylesheet'>
 </head>
-<body style="display: none;">
+<body>
     <div class="container">
         <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h1 style="margin: 0;">일기 검색</h1>
@@ -33,15 +33,6 @@
     </div>
 
     <script type="module" src="/firebase.js"></script>
-    <script type="module" src="/auth.js"></script>
     <script type="module" src="/search.js"></script>
-
-    <script type="module">
-        import { monitorAuthState } from './auth.js';
-        monitorAuthState(
-            user => { document.body.style.display = 'block'; },
-            () => { window.location.href = 'login.html'; }
-        );
-    </script>
 </body>
 </html>
